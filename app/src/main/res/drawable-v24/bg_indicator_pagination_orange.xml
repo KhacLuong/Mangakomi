@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#FC8A04" tools:ignore="StateListReachable" />
+    <size android:width="@dimen/define_dimen_40" android:height="@dimen/define_dimen_40"/>
+
+</shape>

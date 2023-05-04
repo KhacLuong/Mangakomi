@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_gray_white_shape_boder_orange_soft_corner_10"
+    android:layout_marginEnd="@dimen/define_dimen_16"
+    android:layout_marginBottom="@dimen/define_dimen_16"
+    android:id="@+id/layout_item"
+    android:padding="@dimen/define_dimen_2">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="@dimen/define_dimen_10"
+        >
+        <ImageView
+            android:id="@+id/img_manga"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/define_dimen_180"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_no_image" />
+    </androidx.cardview.widget.CardView>
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/define_dimen_40"
+        android:orientation="horizontal"
+            android:weightSum="3"
+        android:layout_marginStart="@dimen/define_dimen_4"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/define_dimen_20"
+            android:orientation="horizontal"
+            android:layout_marginStart="@dimen/define_dimen_4"
+            android:layout_marginTop="@dimen/define_dimen_6">
+            <ImageView
+                android:id="@+id/img_start1_1"
+                android:layout_width="@dimen/define_dimen_10"
+                android:layout_height="@dimen/define_dimen_10"
+                android:src="@drawable/icon_rating"
+                android:layout_marginEnd="@dimen/define_dimen_4"/>
+            <ImageView
+                android:id="@+id/img_start_2"
+                android:layout_width="@dimen/define_dimen_10"
+                android:layout_height="@dimen/define_dimen_10"
+                android:src="@drawable/icon_rating"
+                android:layout_marginEnd="@dimen/define_dimen_4"/>
+            <ImageView
+                android:id="@+id/img_start_3"
+                android:layout_width="@dimen/define_dimen_10"
+                android:layout_height="@dimen/define_dimen_10"
+                android:src="@drawable/icon_rating"
+                android:layout_marginEnd="@dimen/define_dimen_4"/>
+            <ImageView
+                android:id="@+id/img_start_4"
+                android:layout_width="@dimen/define_dimen_10"
+                android:layout_height="@dimen/define_dimen_10"
+                android:src="@drawable/icon_rating"
+                android:layout_marginEnd="@dimen/define_dimen_4"/>
+            <ImageView
+                android:id="@+id/img_start_5"
+                android:layout_width="@dimen/define_dimen_10"
+                android:layout_height="@dimen/define_dimen_10"
+                android:src="@drawable/icon_rating"
+                android:layout_marginEnd="@dimen/define_dimen_4"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+
+
+                android:id="@+id/tv_name_manga"
+                android:layout_width="@dimen/define_dimen_90"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:text="@string/tv_manga_name"
+                android:textSize="@dimen/define_dimen_10"
+                tools:ignore="SpUsage" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="@dimen/define_dimen_6">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/define_dimen_6"
+                    android:layout_marginEnd="@dimen/define_dimen_4"
+                    android:layout_toStartOf="@id/icon_bookmark"
+                    android:text="@string/bookmark"
+                    android:textSize="@dimen/define_dimen_10"
+                    tools:ignore="SpUsage" />
+
+                <ImageView
+                    android:id="@+id/icon_bookmark"
+                    android:layout_width="@dimen/define_dimen_20"
+                    android:layout_height="@dimen/define_dimen_26"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="1dp"
+                    android:src="@drawable/bookmark_dark" />
+            </RelativeLayout>
+        </RelativeLayout>
+
+
+
+
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_marginStart="@dimen/define_dimen_4"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="9">
+        <TextView
+            android:id="@+id/tv_chapter"
+            android:layout_weight="5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/chapter"
+            android:textSize="@dimen/define_dimen_10"
+            android:background="@drawable/bg_yellow_light_white_shape_border_gray_20"
+            android:gravity="center"
+            android:paddingTop="@dimen/define_dimen_4"
+            android:paddingBottom="@dimen/define_dimen_4"
+            tools:ignore="SpUsage" />
+        <TextView
+            android:textSize="@dimen/define_dimen_10"
+            android:id="@+id/tv_time_update"
+            android:layout_weight="4"
+            android:layout_width="0dp"
+            android:layout_marginStart="@dimen/define_dimen_6"
+            android:layout_height="wrap_content"
+            android:text="@string/time_update"
+            tools:ignore="SpUsage"
+            android:layout_marginBottom="@dimen/define_dimen_2"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/layout_root"
+    android:background="@drawable/bg_home"
+    >
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/layout_toolbar" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginStart="@dimen/define_dimen_12"
+        android:layout_marginTop="@dimen/define_dimen_20"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:id="@+id/rcv_storage"/>
+
+    <TextView
+        android:id="@+id/tv_no_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/no_data"
+        android:textSize="@dimen/define_dimen_20"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:ignore="SpUsage" />
+    <LinearLayout
+        android:id="@+id/layout_bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/define_dimen_30"
+        android:layout_alignParentBottom="true">
+        <include
+            android:id="@+id/bottom_nav"
+            layout="@layout/layout_bottom_none"
+            />
+    </LinearLayout>
+
+
+
+</RelativeLayout>

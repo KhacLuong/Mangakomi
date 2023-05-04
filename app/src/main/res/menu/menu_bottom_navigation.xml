@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <item
+        android:id="@+id/nav_home"
+        android:title="@string/home"
+        android:textSize="16sp"
+        />
+    <item
+        android:id="@+id/nav_latest"
+        android:title="@string/latest_update" />
+
+    <item
+        android:id="@+id/nav_hot_manga"
+        android:title="@string/hot_manga" />
+    <item
+        android:id="@+id/nav_new_manga"
+        android:title="@string/new_manga" />
+
+</menu>

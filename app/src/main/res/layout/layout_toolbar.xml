@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize"
+    android:id="@+id/layout_toolbar"
+    android:background="@color/bgToolbar">
+
+    <ImageView
+        android:id="@+id/img_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-2dp"
+        android:src="@drawable/img_logo"
+
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/define_dimen_8">
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textColor="@color/yellow"
+            android:text=""
+            android:textSize="@dimen/define_dimen_18"
+            android:textStyle="bold"
+            tools:ignore="SpUsage" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/btn_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="@dimen/define_dimen_20"
+        android:layout_marginBottom="@dimen/define_dimen_10"
+        android:layout_toStartOf="@+id/edt_search"
+        android:src="@drawable/ic_account_toolbar" />
+
+    <EditText
+        android:id="@+id/edt_search"
+        android:layout_width="@dimen/define_dimen_300"
+        android:layout_height="@dimen/define_dimen_40"
+        android:layout_marginTop="@dimen/define_dimen_6"
+        android:layout_marginEnd="@dimen/define_dimen_20"
+        android:padding="@dimen/define_dimen_10"
+        android:layout_toStartOf="@+id/btn_search"
+        android:background="@drawable/bg_white_shape_corner_20"
+        android:visibility="gone" />
+    <ImageView
+        android:id="@+id/btn_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_search"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="@dimen/define_dimen_10"
+        android:layout_marginEnd="@dimen/define_dimen_20"
+        />
+
+</RelativeLayout>

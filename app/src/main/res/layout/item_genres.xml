@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/define_dimen_90"
+    android:layout_height="@dimen/define_dimen_90"
+    android:background="@drawable/bg_item_genre"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:id="@+id/layout_item"
+    android:layout_marginBottom="@dimen/define_dimen_10"
+    android:layout_marginEnd="@dimen/define_dimen_10"
+    >
+    <TextView
+        android:id="@+id/tv_genre_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="@dimen/define_dimen_14"
+        android:text="@string/genres"
+        tools:ignore="SpUsage"
+        android:textColor="@color/white"
+        android:gravity="center"/>
+</LinearLayout>
