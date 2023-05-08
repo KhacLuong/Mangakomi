@@ -18,18 +18,26 @@ import com.example.mangakomi.ui.myCustom.MyBottomDialog;
 import com.example.mangakomi.util.GlobalFunction;
 import com.example.mangakomi.util.IConstant;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 
 public class MainActivity extends AppCompatActivity {
     public ActivityMainBinding mActivityMainBinding;
     MyBottomDialog bottomSheetDialog;
-
+    public KProgressHUD kProgressHUD;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.yellow2));
         mActivityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mActivityMainBinding.getRoot());
+
+        kProgressHUD = KProgressHUD.create(this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("Downloading data")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
 
         mActivityMainBinding.viewpager2.setUserInputEnabled(false);
         MainViewPagerAdapter mainViewPagerAdapter = new MainViewPagerAdapter(this);

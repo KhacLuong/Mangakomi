@@ -2,6 +2,7 @@ package com.example.mangakomi.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.mangakomi.ui.activity.MainActivity;
 import com.example.mangakomi.ui.activity.MangaDetailActivity;
 import com.example.mangakomi.ui.adapter.MangaHotAdapter;
 import com.example.mangakomi.ui.adapter.PageAdapter;
 import com.example.mangakomi.service.api.ApiService;
 import com.example.mangakomi.databinding.FragmentMangaHotBinding;
 import com.example.mangakomi.model.MangaLatest;
+import com.example.mangakomi.ui.myCustom.MyDialog;
 import com.example.mangakomi.util.GlobalFunction;
 import com.example.mangakomi.util.IConstant;
 import com.example.mangakomi.service.api.Server;
@@ -35,19 +38,25 @@ public class HotMangaFragment extends Fragment {
     private List<MangaLatest> mangaList;
     private MangaHotAdapter mangaHotAdapter;
     private PageAdapter pageAdapter;
+    private MainActivity mainActivity;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentMangaHotBinding = FragmentMangaHotBinding.inflate(inflater, container, false);
+        mainActivity = (MainActivity) getActivity();
         mangaList = new ArrayList<>();
+        mainActivity.kProgressHUD.show();
         setDataPagination();
-        getListMangaHot(1);
         displayListMangaHot(mangaList);
+        getListMangaHot(1);
+
         return fragmentMangaHotBinding.getRoot();
     }
 
     private void getListMangaHot(int page) {
-
+        if (!mainActivity.kProgressHUD.isShowing()) {
+            mainActivity.kProgressHUD.show();
+        }
         ApiService.apiService.getListMangaHot(Server.HEADER_MANGA_HOT_START + page + Server.HEADER_MANGA_HOT_END).enqueue(new Callback<List<MangaLatest>>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -55,14 +64,29 @@ public class HotMangaFragment extends Fragment {
                 List<MangaLatest> mangaList = response.body();
                 mangaHotAdapter.setData(mangaList);
                 mangaHotAdapter.notifyDataSetChanged();
+                if (mainActivity.kProgressHUD.isShowing()) {
+                    mainActivity.kProgressHUD.dismiss();
+                }
 
             }
 
             @Override
             public void onFailure(Call<List<MangaLatest>> call, Throwable t) {
-                Toast.makeText(getActivity(), "Call api Ree", Toast.LENGTH_SHORT).show();
+                if (mainActivity.kProgressHUD.isShowing()) {
+                    mainActivity.kProgressHUD.dismiss();
+                }
+                openDialogReload(page);
+
             }
         });
+    }
+    private void openDialogReload(int page) {
+        MyDialog dialog = new MyDialog(getActivity(),1, "Confirm", "Error, would you like to wait to reload", Gravity.CENTER);
+        dialog.setOnButtonClickListener(() -> getListMangaHot(page), () -> {
+
+        });
+        dialog.show();
+
     }
 
     private void setDataPagination(){
@@ -80,6 +104,7 @@ public class HotMangaFragment extends Fragment {
     }
 
     private void goToPage(int page, int indexOlderItem) {
+        mainActivity.kProgressHUD.show();
         fragmentMangaHotBinding.tvCurrentPage.setText(String.valueOf("page "+page));
         pageAdapter.notifyItemChanged(page-1);
         pageAdapter.notifyItemChanged(indexOlderItem);
@@ -92,6 +117,7 @@ public class HotMangaFragment extends Fragment {
         fragmentMangaHotBinding.rcvMangaLatest.setLayoutManager(gridLayoutManager);
         mangaHotAdapter = new MangaHotAdapter(mangaList ,this::goToMangaDetail);
         fragmentMangaHotBinding.rcvMangaLatest.setAdapter(mangaHotAdapter);
+
     }
     private void goToMangaDetail(String manga_link) {
         GlobalFunction.startActivity(getActivity(), MangaDetailActivity.class, IConstant.MANGA_LINK, manga_link);

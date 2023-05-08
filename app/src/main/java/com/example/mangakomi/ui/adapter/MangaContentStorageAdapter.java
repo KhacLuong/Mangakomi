@@ -37,12 +37,12 @@ public class MangaContentStorageAdapter extends RecyclerView.Adapter<MangaConten
     public void onBindViewHolder(@NonNull ContentChapterViewHolder holder, int position) {
         try{
             Bitmap bitmap = bitmapList.get(position);
-            if(bitmap==null||!bitmap.isRecycled()){
+            if(bitmap==null){
                 holder.itemContentChapterBinding.imgContent.setImageResource(R.drawable.img_no_image);
             }else {
                 Glide.with(holder.itemView.getContext())
                         .asBitmap()
-                        .load(bitmapList)
+                        .load(bitmap)
                         .into(holder.itemContentChapterBinding.imgContent);
             }
         }catch (Exception ignored){

@@ -22,8 +22,12 @@ public interface ChapterDownloadDao {
     @Query("SELECT * FROM chapter_download WHERE name_chapter = :name")
     ChapterDownload getChapterByName(String name);
 
-    @Query("SELECT * FROM chapter_download WHERE id = :id")
+    @Query("SELECT * FROM chapter_download WHERE manga_id = :id")
     List<ChapterDownload> getChaptersByMangaId(int id);
+
+    @Query("SELECT * FROM chapter_download WHERE name_chapter = :name AND manga_id = :id")
+    ChapterDownload getChaptersByNameAndMangaId(String name, int id);
+
 
     @Delete
     void deleteChapter(ChapterDownload chapter);
@@ -37,7 +41,7 @@ public interface ChapterDownloadDao {
     @Query("Delete from chapter_download WHERE manga_id = :manga_id")
     void deleteChapterByMangaId(int manga_id);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     void  insert(ChapterDownload chapterDownload);
 
 }

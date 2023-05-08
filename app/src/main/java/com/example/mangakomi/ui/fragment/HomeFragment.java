@@ -1,6 +1,7 @@
 package com.example.mangakomi.ui.fragment;
 
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.mangakomi.model.MangaHistory;
+import com.example.mangakomi.ui.activity.MainActivity;
 import com.example.mangakomi.ui.activity.MangaDetailActivity;
 import com.example.mangakomi.ui.adapter.MangaLatestAdapter;
 import com.example.mangakomi.ui.adapter.MangaPopularAdapter;
@@ -21,6 +24,7 @@ import com.example.mangakomi.service.api.ApiService;
 import com.example.mangakomi.databinding.FragmentHomeBinding;
 import com.example.mangakomi.model.MangaLatest;
 import com.example.mangakomi.model.MangaPopular;
+import com.example.mangakomi.ui.myCustom.MyDialog;
 import com.example.mangakomi.util.GlobalFunction;
 import com.example.mangakomi.util.IConstant;
 import com.example.mangakomi.service.api.Server;
@@ -37,11 +41,14 @@ public class HomeFragment extends Fragment {
 
     private MangaPopularAdapter mangaPopularAdapter;
     private MangaLatestAdapter mangaLatestAdapter;
+    private MainActivity mainActivity;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false);
+        mainActivity = (MainActivity) getActivity();
+        mainActivity.kProgressHUD.show();
         getListMangaPopular();
         getListMangaLatest(1);
 
@@ -50,7 +57,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void getListMangaPopular() {
-
+        if (!mainActivity.kProgressHUD.isShowing()) {
+            mainActivity.kProgressHUD.show();
+        }
         ApiService.apiService.getListMangaPopular().enqueue(new Callback<List<MangaPopular>>() {
             @Override
             public void onResponse(Call<List<MangaPopular>> call, Response<List<MangaPopular>> response) {
@@ -60,13 +69,15 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<MangaPopular>> call, Throwable t) {
-                Toast.makeText(getActivity(), "error", Toast.LENGTH_SHORT).show();
-                getListMangaPopular();
+                openDialogReload();
+
             }
         });
     }
     private void getListMangaLatest(int page) {
-
+        if (!mainActivity.kProgressHUD.isShowing()) {
+            mainActivity.kProgressHUD.show();
+        }
         ApiService.apiService.getListMangaLatest(Server.HEADER_LATEST_START + page + Server.HEADER_LATEST_END).enqueue(new Callback<List<MangaLatest>>() {
             @Override
             public void onResponse(Call<List<MangaLatest>> call, Response<List<MangaLatest>> response) {
@@ -76,10 +87,25 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<MangaLatest>> call, Throwable t) {
-                Toast.makeText(getActivity(), "error", Toast.LENGTH_SHORT).show();
-                getListMangaLatest(1);
+                openDialogReload(page);
+
             }
         });
+    }
+    private void openDialogReload(int page) {
+        MyDialog dialog = new MyDialog(getActivity(),1, "Confirm", "Error, would you like to wait to reload", Gravity.CENTER);
+        dialog.setOnButtonClickListener(() -> getListMangaLatest(page), () -> {
+
+        });
+        dialog.show();
+    }
+    private void openDialogReload() {
+        MyDialog dialog = new MyDialog(getActivity(),1, "Confirm", "Error, would you like to wait to reload", Gravity.CENTER);
+        dialog.setOnButtonClickListener(() -> getListMangaPopular(), () -> {
+
+        });
+        dialog.show();
+
     }
 
     private void displayListMangaLatest(List<MangaLatest> mangaList) {
@@ -87,6 +113,10 @@ public class HomeFragment extends Fragment {
         fragmentHomeBinding.rcvMangaLatest.setLayoutManager(gridLayoutManager);
         mangaLatestAdapter = new MangaLatestAdapter(mangaList ,this::goToMangaDetail);
         fragmentHomeBinding.rcvMangaLatest.setAdapter(mangaLatestAdapter);
+        if (mainActivity.kProgressHUD.isShowing()){
+            mainActivity.kProgressHUD.dismiss();
+        }
+
     }
 
     private void displayListMangaPopular(List<MangaPopular> mangaList) {
@@ -115,4 +145,11 @@ public class HomeFragment extends Fragment {
         GlobalFunction.startActivity(getActivity(), MangaDetailActivity.class, IConstant.MANGA_LINK, manga_link);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mainActivity.kProgressHUD.isShowing()){
+            mainActivity.kProgressHUD.dismiss();
+        }
+    }
 }

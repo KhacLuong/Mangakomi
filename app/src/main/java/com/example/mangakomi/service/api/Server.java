@@ -17,6 +17,7 @@ public interface Server {
     String HEADER_MANGA_HOT_START =   "https://mangakomi.io/manga/page/";
     String HEADER_MANGA_HOT_END = "/?m_orderby=views";
 
+
     String HEADER_MANGA_NEW_START =  "https://mangakomi.io/manga/page/";
     String HEADER_MANGA_NEW_END = "/?m_orderby=new-manga";
     String HEADER_MANGA_GENRES = "https://mangakomi.io/manga-genre/";

@@ -42,6 +42,7 @@ public class PageAdapter  extends  RecyclerView.Adapter<PageAdapter.PaginationVi
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull PaginationViewHolder holder, @SuppressLint("RecyclerView") int position) {
+
         if(indexCurrentPage==position){
             holder.itemPaginationBinding.layoutItem.setBackgroundResource(R.drawable.bg_indicator_pagination_orange);
         }else {

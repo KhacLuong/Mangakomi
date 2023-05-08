@@ -1,22 +1,34 @@
 package com.example.mangakomi.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
+import com.example.mangakomi.R;
 import com.example.mangakomi.databinding.FragmentContentStorageBinding;
 
 import com.example.mangakomi.ui.activity.MangaDetailStorageActivity;
 import com.example.mangakomi.ui.adapter.MangaContentAdapter;
 import com.example.mangakomi.ui.adapter.MangaContentStorageAdapter;
+import com.example.mangakomi.util.event.ReloadListDataContentMangaEvent;
+import com.example.mangakomi.util.event.ReloadListDataContentMangaStorageEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,14 +50,21 @@ public class ContentStorageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         fragmentContentBinding = FragmentContentStorageBinding.inflate(inflater, container, false);
+        requireActivity().getWindow().setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.black));
         mangaDetailStorageActivity = (MangaDetailStorageActivity) getActivity();
+        mangaDetailStorageActivity.showProgressHUD();
         bitmapList = new ArrayList<>();
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
+
 
         try {
 
             initUi();
             initRcvManga();
             getData();
+            initListener();
         }catch (Exception e){
             requireActivity().onBackPressed();
         }
@@ -53,6 +72,28 @@ public class ContentStorageFragment extends Fragment {
         return fragmentContentBinding.getRoot();
     }
 
+    private void initListener() {
+        fragmentContentBinding.rcvManga.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy>0){
+                    fragmentContentBinding.btnFloating.hide();
+
+                }else {
+                    fragmentContentBinding.btnFloating.show();
+                }
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+        fragmentContentBinding.btnFloating.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fragmentContentBinding.rcvManga.smoothScrollToPosition(0);
+            }
+        });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     private void getData() {
         bitmapList.clear();
 //        try {
@@ -78,8 +119,11 @@ public class ContentStorageFragment extends Fragment {
 //        }
 
 
-        String filePath = mangaDetailStorageActivity.getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDetailStorageActivity.mangaDownload.getTitle_manga().trim();
-        File imageFile = new File(filePath, mangaDetailStorageActivity.currentChapter.getName_chapter().trim());
+//        String filePath = mangaDetailStorageActivity.getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDetailStorageActivity.mangaDownload.getTitle_manga().trim();
+        File cacheDir = getActivity().getApplicationContext().getCacheDir();
+        String filePath = cacheDir.getPath() + "/image/" + mangaDetailStorageActivity.mangaDownload.getTitle_manga().trim() + "/" + mangaDetailStorageActivity.currentChapter.getName_chapter().trim();
+//        String filePath = Environment.getExternalStorageDirectory() + "/Komi/"+mangaDetailStorageActivity.mangaDownload.getTitle_manga().trim()+"/"+mangaDetailStorageActivity.currentChapter.getName_chapter().trim();
+        File imageFile = new File(filePath);
         File[] imageFiles = imageFile.listFiles();
         if (imageFiles != null) {
             for (File file : imageFiles) {
@@ -94,6 +138,7 @@ public class ContentStorageFragment extends Fragment {
             }
             adapter.setData(bitmapList);
             adapter.notifyDataSetChanged();
+            mangaDetailStorageActivity.hideKProgressHUD();
         }
     }
 
@@ -111,7 +156,17 @@ public class ContentStorageFragment extends Fragment {
             adapter = new MangaContentStorageAdapter();
             fragmentContentBinding.rcvManga.setAdapter(adapter);
     }
-
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(ReloadListDataContentMangaStorageEvent event ){
+        getData();
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+        mangaDetailStorageActivity.hideKProgressHUD();
+    }
 
 }

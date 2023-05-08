@@ -16,6 +16,8 @@ import com.example.mangakomi.util.IConstant;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
+
 public class MangaDetailActivity extends AppCompatActivity  {
 
     public ActivityMangaDetailBinding activityMangaBinding;
@@ -25,6 +27,7 @@ public class MangaDetailActivity extends AppCompatActivity  {
     public String chapter_name;
     public List<String> chapterNameList;
     public MangaDetail mangaDetail;
+    public KProgressHUD kProgressHUD;
 
 
     @Override
@@ -34,6 +37,14 @@ public class MangaDetailActivity extends AppCompatActivity  {
         activityMangaBinding = ActivityMangaDetailBinding.inflate(getLayoutInflater());
         setContentView(activityMangaBinding.getRoot());
         chapterNameList = new ArrayList<>();
+
+        kProgressHUD = KProgressHUD.create(this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("Downloading data")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
 
         activityMangaBinding.viewpager2MangaDetail.setUserInputEnabled(true);
         MangaViewPagerAdapter mangaViewPagerAdapter = new MangaViewPagerAdapter(this);
@@ -57,5 +68,21 @@ public class MangaDetailActivity extends AppCompatActivity  {
 ////        fragmentTransaction.addToBackStack(null);
 ////        fragmentTransaction.commit();
 //    }
+    public void hideKProgressHUD() {
+        if(kProgressHUD.isShowing())
+            kProgressHUD.dismiss();
 
+    }
+    public void showProgressHUD() {
+        if(!kProgressHUD.isShowing()){
+            kProgressHUD.show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+     hideKProgressHUD();
+
+    }
 }

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mangakomi.service.DbStorage.MangaHistory.MangaHistoryDb;
 import com.example.mangakomi.ui.activity.MangaDetailActivity;
+import com.example.mangakomi.ui.activity.SecondaryActivity;
 import com.example.mangakomi.ui.adapter.MangaHistoryAdapter;
 import com.example.mangakomi.util.callback.ItemTouchHelperListener;
 import com.example.mangakomi.databinding.FragmentBookmarkedBinding;
@@ -37,6 +38,7 @@ public class BookMarkedFragment extends Fragment implements ItemTouchHelperListe
     private FragmentBookmarkedBinding fragmentBookmarkedBinding;
     private List<MangaHistory> mangaList;
     private MangaHistoryAdapter mangaHistoryAdapter;
+    private SecondaryActivity secondaryActivity;
 
     @Nullable
     @Override
@@ -45,6 +47,8 @@ public class BookMarkedFragment extends Fragment implements ItemTouchHelperListe
         if(!EventBus.getDefault().isRegistered(this)){
             EventBus.getDefault().register(this);
         }
+        secondaryActivity = (SecondaryActivity) getActivity();
+
         mangaList = new ArrayList<>();
         initUi(mangaList);
         getListMangaBookMark();
@@ -74,6 +78,7 @@ public class BookMarkedFragment extends Fragment implements ItemTouchHelperListe
         mangaHistoryAdapter.notifyDataSetChanged();
         fragmentBookmarkedBinding.tvNoData.setVisibility(View.GONE);
 
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -87,6 +92,7 @@ public class BookMarkedFragment extends Fragment implements ItemTouchHelperListe
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+
     }
 
     //     Xử lý xóa và undo

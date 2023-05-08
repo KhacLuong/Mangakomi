@@ -6,7 +6,7 @@ import androidx.room.Relation;
 import java.util.List;
 
 public class MangaChapterDownload {
-    public class UserWithPlaylists {
+
         @Embedded
         public MangaDownload mangaDownload;
         @Relation(
@@ -14,5 +14,4 @@ public class MangaChapterDownload {
                 entityColumn = "manga_id"
         )
         public List<ChapterDownload> chapterDownloadList;
-    }
 }

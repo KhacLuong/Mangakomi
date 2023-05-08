@@ -49,7 +49,7 @@ public interface ApiService {
     @GET(Server.URI_HOME)
     Call<List<MangaLatest>> getListMangaLatest(@Header(Server.KEY_HEADER) String valueHeader);
 
-    @GET(Server.URI_CATEGORY)
+    @GET(Server.URI_HOME)
     Call<List<MangaLatest>> getListMangaHot(@Header(Server.KEY_HEADER) String valueHeader);
 
 

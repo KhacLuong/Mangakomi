@@ -12,18 +12,23 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mangakomi.service.DbStorage.MangaHistory.MangaHistoryDb;
 import com.example.mangakomi.R;
 import com.example.mangakomi.ui.activity.MangaDetailActivity;
+import com.example.mangakomi.ui.activity.MangaGenresActivity;
+import com.example.mangakomi.ui.activity.MangaStorageActivity;
 import com.example.mangakomi.ui.adapter.ChapterSpinnerAdapter;
 import com.example.mangakomi.ui.adapter.MangaContentAdapter;
 
 import com.example.mangakomi.service.api.ApiService;
 
 import com.example.mangakomi.databinding.FragmentContentBinding;
+import com.example.mangakomi.util.IConstant;
 import com.example.mangakomi.util.event.ReloadListDataContentMangaEvent;
 import com.example.mangakomi.util.event.ReloadListDataHistory;
 import com.example.mangakomi.model.MangaContent;
@@ -54,16 +59,19 @@ public class ContentMangaFragment extends Fragment {
 
     private ChapterSpinnerAdapter spinnerAdapter;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentContentBinding = FragmentContentBinding.inflate(inflater, container, false);
+        requireActivity().getWindow().setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.black));
         mangaDetailActivity = (MangaDetailActivity) getActivity();
+
+//        mangaDetailActivity.kProgressHUD.show();
+            mangaDetailActivity.showProgressHUD();
         if(mangaDetailActivity.chapterNameList!=null){
             adapterChapter = new ArrayAdapter<String>(getActivity(), R.layout.item_list_choice_chapter, mangaDetailActivity.chapterNameList);
         }
-
-
         try {
             imageList = new ArrayList<>();
 
@@ -83,10 +91,29 @@ public class ContentMangaFragment extends Fragment {
         return fragmentContentBinding.getRoot();
     }
 
+
     private void eventListener() {
+
+        //    Search
+        fragmentContentBinding.toolbar.btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(getActivity(), MangaGenresActivity.class, IConstant.ACTION, IConstant.ACTION_SEARCH) ;
+            }
+        });
+
+        //    history
+        fragmentContentBinding.toolbar.btnAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(getActivity(), MangaStorageActivity.class) ;
+
+            }
+        });
         fragmentContentBinding.btnBackScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 mangaDetailActivity.activityMangaBinding.viewpager2MangaDetail.setCurrentItem(0);
             }
         });
@@ -95,6 +122,7 @@ public class ContentMangaFragment extends Fragment {
             @SuppressLint("ResourceType")
             @Override
             public void onClick(View v) {
+                    mangaDetailActivity.showProgressHUD();
                 if(mangaDetailActivity.indexCurrentChapter>=1){
                     setData(--mangaDetailActivity.indexCurrentChapter);
 //                    if(mangaActivity.indexCurrentChapter==1){
@@ -103,18 +131,43 @@ public class ContentMangaFragment extends Fragment {
 //
 //                    }
                 }else {
-                    Toast.makeText(getActivity(), "The end story", Toast.LENGTH_SHORT).show();
+                    mangaDetailActivity.hideKProgressHUD();
+                    Toast.makeText(getActivity(), "The last chapter", Toast.LENGTH_SHORT).show();
                 }
             }
         });
         fragmentContentBinding.btnImgBackChapter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mangaDetailActivity.showProgressHUD();
                 if(mangaDetailActivity.mangaDetail.getList_chapter()!=null&&mangaDetailActivity.indexCurrentChapter<= mangaDetailActivity.mangaDetail.getList_chapter().size()-2){
                     setData(++mangaDetailActivity.indexCurrentChapter);
                 }else {
-                    Toast.makeText(getActivity(), "Start story", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "The first chapter", Toast.LENGTH_SHORT).show();
+                    mangaDetailActivity.hideKProgressHUD();
+
                 }
+            }
+        });
+
+        fragmentContentBinding.rcvManga.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy>0){
+                    fragmentContentBinding.btnFloating.hide();
+
+
+                }else {
+                    fragmentContentBinding.btnFloating.show();
+                }
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+        fragmentContentBinding.btnFloating.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fragmentContentBinding.nestedScrollView.smoothScrollTo(0, 0);
+                fragmentContentBinding.rcvManga.smoothScrollToPosition(0);
             }
         });
     }
@@ -126,6 +179,7 @@ public class ContentMangaFragment extends Fragment {
             fragmentContentBinding.autoCompleteChapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    mangaDetailActivity.showProgressHUD();
                     String item = parent.getItemAtPosition(position).toString();
                     for (int i = 0; i< mangaDetailActivity.mangaDetail.getList_chapter().size(); i++){
                         MangaDetail.Chapter chapter = mangaDetailActivity.mangaDetail.getList_chapter().get(i);
@@ -134,16 +188,14 @@ public class ContentMangaFragment extends Fragment {
                             GlobalFunction.hideSoftKeyboard(getActivity());
                             mangaDetailActivity.indexCurrentChapter = i;
                             getMangaContent(chapter.getLink_chapter());
-                            Toast.makeText(getActivity(),"Item: "+item,Toast.LENGTH_SHORT).show();
                         }
                     }
 
                 }
             });
         }
-
-
     }
+
     private void setSpinner(){
         if(mangaDetailActivity.chapterNameList!=null) {
             spinnerAdapter = new ChapterSpinnerAdapter(mangaDetailActivity.chapterNameList, new ChapterSpinnerAdapter.IOnClickChapterItemListener() {
@@ -170,6 +222,7 @@ public class ContentMangaFragment extends Fragment {
         }
     }
 
+
     private void resetInfoShow(MangaDetail.Chapter chapter) {
         mangaDetailActivity.chapter_name = chapter.getName_chapter();
         mangaDetailActivity.mangaLink = chapter.getLink_chapter();
@@ -195,8 +248,9 @@ public class ContentMangaFragment extends Fragment {
             }
             fragmentContentBinding.autoCompleteChapter.setText(currentChapter.getName_chapter().trim());
             getMangaContent(currentChapter.getLink_chapter());
-            MangaHistory mangaHistory = new MangaHistory(mangaDetailActivity.mangaDetail.getTitle_manga().trim(),mangaDetailActivity.mangaLink.trim(), mangaDetailActivity.mangaDetail.getRank_manga().trim(), currentChapter.getName_chapter().trim(), mangaDetailActivity.mangaDetail.rating_manga.trim(),mangaDetailActivity.mangaDetail.getPoster_manga(), 1, 0, currentIndexChapter);
+            MangaHistory mangaHistory = new MangaHistory(mangaDetailActivity.mangaDetail.getTitle_manga().trim(),mangaDetailActivity.mangaLink.trim(), mangaDetailActivity.mangaDetail.getRank_manga().trim(), currentChapter.getName_chapter().trim(), mangaDetailActivity.mangaDetail.rating_manga.trim(),mangaDetailActivity.mangaDetail.getPoster_manga(), 1, 0, mangaDetailActivity.mangaDetail.getList_chapter().size() - currentIndexChapter);
             updateHistory(mangaHistory);
+//            mangaDetailActivity.hideKProgressHUD();
         }catch (Exception e){
             requireActivity().onBackPressed();
         }
@@ -222,14 +276,17 @@ public class ContentMangaFragment extends Fragment {
                  mangaContent = response.body();
                 mangaContentAdapter.setData(mangaContent.getImage());
                 mangaContentAdapter.notifyDataSetChanged();
+                mangaDetailActivity.hideKProgressHUD();
             }
 
             @Override
             public void onFailure(Call<MangaContent> call, Throwable t) {
                 Toast.makeText(getActivity(), "error", Toast.LENGTH_SHORT).show();
+                mangaDetailActivity.hideKProgressHUD();
 
             }
         });
+
     }
 
 //    EventBus
@@ -255,14 +312,26 @@ public class ContentMangaFragment extends Fragment {
        MangaHistory manga =  MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().getMangaByName(mangaHistory.getName().trim());
         if(manga == null){
             MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().insertMangaHistory(mangaHistory);
+            List<MangaHistory> mangaOfHistoryList = MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().getListMangaHistory();
+            if(mangaOfHistoryList.size()>10){
+                MangaHistory maga1 = mangaOfHistoryList.get(0);
+                if(maga1.getStatusBookMark()==0){
+                    MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().deleteMangaHistory(maga1.getId());
+                }else {
+                    maga1.setStatusHistory(0);
+                }
+            }
         }else {
 
             manga.setStatusHistory(1);
-            manga.setIndexChapter(mangaHistory.getIndexChapter());
+            manga.setIndexChapterReverse(mangaHistory.getIndexChapterReverse());
             manga.setChapter(mangaHistory.getChapter());
             manga.setRating(mangaHistory.getRating());
             manga.setRanking(manga.getRanking());
-            MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().updateMangaHistory(manga);
+
+            MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().deleteMangaHistory(manga.getId());
+            MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().insertMangaHistory(manga);
+
         }
         EventBus.getDefault().post(new ReloadListDataHistory());
 

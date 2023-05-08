@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.TextView;
 
 import com.example.mangakomi.R;
 import com.example.mangakomi.ui.adapter.MangaGenresAdapter;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -46,6 +49,7 @@ public class MangaGenresActivity extends AppCompatActivity {
     private PageAdapter pageAdapter;
     private String action;
     private String keyword;
+    private KProgressHUD kProgressHUD;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,15 @@ public class MangaGenresActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.yellow2));
         activityMangaGenresBinding = ActivityMangaGenresBinding.inflate(getLayoutInflater());
         setContentView(activityMangaGenresBinding.getRoot());
+
+        kProgressHUD = KProgressHUD.create(this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("Downloading data")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
+
         mangaList = new ArrayList<>();
         if(!EventBus.getDefault().isRegistered(this)){
             EventBus.getDefault().register(this);
@@ -71,12 +84,15 @@ public class MangaGenresActivity extends AppCompatActivity {
     }
 
     private void eventListener() {
-        activityMangaGenresBinding.toolbar.edtSearch.setOnEditorActionListener((textView, actionId, keyEvent) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                searchManga();
-                return true;
+        activityMangaGenresBinding.toolbar.edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    MangaGenresActivity.this.searchManga();
+                    return true;
+                }
+                return false;
             }
-            return false;
         });
         activityMangaGenresBinding.toolbar.btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,7 +137,7 @@ public class MangaGenresActivity extends AppCompatActivity {
             activityMangaGenresBinding.tvLastPage.setVisibility(View.GONE);
             String keySearch = activityMangaGenresBinding.toolbar.edtSearch.getText().toString().trim();
             GlobalFunction.hideSoftKeyboard(this);
-            getMangaSearch(keySearch);
+            getMangaSearch(GlobalFunction.getTextSearch(keySearch));
         }
 
     }
@@ -164,6 +180,9 @@ public class MangaGenresActivity extends AppCompatActivity {
     }
 
     private void getMangaSearch(String keySearch) {
+        if (!kProgressHUD.isShowing()){
+            kProgressHUD.show();
+        }
 
         String link = Server.HEADER_MANGA_SEARCH_START + keySearch.trim() + Server.HEADER_MANGA_SEARCH_END;
         ApiService.apiService.getSearch(link).enqueue(new Callback<List<MangaLatest>>() {
@@ -173,12 +192,16 @@ public class MangaGenresActivity extends AppCompatActivity {
                 List<MangaLatest> mangaLatests = response.body();
                 mangaGenresAdapter.setData(mangaLatests);
                 mangaGenresAdapter.notifyDataSetChanged();
-
+                if (kProgressHUD.isShowing()){
+                    kProgressHUD.dismiss();
+                }
             }
 
             @Override
             public void onFailure(Call<List<MangaLatest>> call, Throwable t) {
-
+                if (kProgressHUD.isShowing()){
+                    kProgressHUD.dismiss();
+                }
             }
         });
     }

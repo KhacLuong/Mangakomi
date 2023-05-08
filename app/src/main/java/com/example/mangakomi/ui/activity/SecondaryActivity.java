@@ -14,6 +14,8 @@ import com.example.mangakomi.util.GlobalFunction;
 import com.example.mangakomi.util.IConstant;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
+
 public class SecondaryActivity extends AppCompatActivity {
     public ActivitySecondaryBinding activitySecondaryBinding;
 
@@ -24,6 +26,8 @@ public class SecondaryActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.yellow2));
         activitySecondaryBinding = ActivitySecondaryBinding.inflate(getLayoutInflater());
         setContentView(activitySecondaryBinding.getRoot());
+
+
 
         activitySecondaryBinding.viewpager2.setUserInputEnabled(false);
         SecondaryViewPagerAdapter secondaryViewPagerAdapter = new SecondaryViewPagerAdapter(this);
@@ -82,5 +86,6 @@ public class SecondaryActivity extends AppCompatActivity {
                 activitySecondaryBinding.viewpager2.setCurrentItem(0);
         }
     }
+
 
 }

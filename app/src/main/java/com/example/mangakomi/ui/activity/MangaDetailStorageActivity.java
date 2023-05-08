@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.example.mangakomi.R;
 import com.example.mangakomi.databinding.ActivityMangaDetailBinding;
@@ -18,6 +19,8 @@ import com.example.mangakomi.util.IConstant;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
+
 public class MangaDetailStorageActivity extends AppCompatActivity {
 
     public ActivityMangaDetailStorageBinding activityMangaDetailStorageBinding;
@@ -25,8 +28,9 @@ public class MangaDetailStorageActivity extends AppCompatActivity {
     public int indexCurrentChapter;
     public MangaDownload mangaDownload;
 
-    public List<String> chapterNameList;
+
     public ChapterDownload currentChapter;
+    public KProgressHUD kProgressHUD;
 
 
     @Override
@@ -35,7 +39,14 @@ public class MangaDetailStorageActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.yellow2));
         activityMangaDetailStorageBinding = ActivityMangaDetailStorageBinding.inflate(getLayoutInflater());
         setContentView(activityMangaDetailStorageBinding.getRoot());
-        chapterNameList = new ArrayList<>();
+        kProgressHUD = KProgressHUD.create(this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("Downloading data")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
+
 
         activityMangaDetailStorageBinding.viewpager2MangaDetail.setUserInputEnabled(true);
         MangaViewPagerStorageAdapter mangaViewPagerAdapter = new MangaViewPagerStorageAdapter(this);
@@ -44,15 +55,29 @@ public class MangaDetailStorageActivity extends AppCompatActivity {
     }
 
     private void getDataIntent() {
-        try {
-            mangaId = Integer.parseInt(getIntent().getStringExtra(IConstant.KEY_VALUE));
-        }catch (Exception e){
-            mangaId = 0;
+            mangaId = getIntent().getIntExtra(IConstant.KEY_VALUE, 0);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (kProgressHUD.isShowing()){
+            kProgressHUD.dismiss();
         }
     }
 
 
+    public void hideKProgressHUD() {
+        if(kProgressHUD.isShowing())
+            kProgressHUD.dismiss();
 
+    }
+    public void showProgressHUD() {
+        if(!kProgressHUD.isShowing())
+            kProgressHUD.show();
+
+    }
 //    public void changeFragment(){
 //
 //        activityMangaBinding.viewpager2MangaDetail.setCurrentItem(0);

@@ -51,6 +51,9 @@
         android:padding="@dimen/define_dimen_10"
         android:layout_toStartOf="@+id/btn_search"
         android:background="@drawable/bg_white_shape_corner_20"
+        android:hint="@string/search"
+        android:focusableInTouchMode="true"
+        android:imeOptions="actionSearch"
         android:visibility="gone" />
     <ImageView
         android:id="@+id/btn_search"

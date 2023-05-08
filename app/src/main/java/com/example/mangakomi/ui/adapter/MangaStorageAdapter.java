@@ -1,5 +1,6 @@
 package com.example.mangakomi.ui.adapter;
 
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,7 +64,12 @@ public class MangaStorageAdapter extends RecyclerView.Adapter<MangaStorageAdapte
                     iOnClickMangaItemListener.onClickItemManga(manga.getId());
                 }
             });
-            String filePath = holder.itemView.getContext().getCacheDir().getPath() + "/image/" +manga.getTitle_manga().trim()+"/poster.jpg";
+
+//             String filePath = Environment.getExternalStorageDirectory() + "/Komi/" +manga.getTitle_manga().trim()+"/poster.jpg";
+            String filePath =holder.itemView.getContext().getCacheDir().getPath() + "/image/" + manga.getTitle_manga().trim()+"/poster.jpg";
+
+
+
 
 // Load ảnh từ tệp tin vào ImageView sử dụng Glide
             Glide.with(holder.itemView.getContext())

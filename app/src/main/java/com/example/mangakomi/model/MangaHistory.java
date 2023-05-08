@@ -36,11 +36,12 @@ public class MangaHistory implements Serializable, Cloneable {
 
     @ColumnInfo(name = "status_bookmark")
     private int statusBookMark;
+//    true =1, false =0
 
     @ColumnInfo(name = "index_chapter")
-    private int indexChapter;
+    private int indexChapterReverse;
 
-    public MangaHistory(String name, String link, String ranking, String chapter, String rating, String poster, int statusHistory, int statusBookMark, int indexChapter) {
+    public MangaHistory(String name, String link, String ranking, String chapter, String rating, String poster, int statusHistory, int statusBookMark, int indexChapterReverse) {
         this.name = name;
         this.link = link;
         this.ranking = ranking;
@@ -49,7 +50,7 @@ public class MangaHistory implements Serializable, Cloneable {
         this.poster = poster;
         this.statusHistory = statusHistory;
         this.statusBookMark = statusBookMark;
-        this.indexChapter = indexChapter;
+        this.indexChapterReverse = indexChapterReverse;
     }
 
     public String getRanking() {
@@ -100,12 +101,12 @@ public class MangaHistory implements Serializable, Cloneable {
         this.id = id;
     }
 
-    public int getIndexChapter() {
-        return indexChapter;
+    public int getIndexChapterReverse() {
+        return indexChapterReverse;
     }
 
-    public void setIndexChapter(int indexChapter) {
-        this.indexChapter = indexChapter;
+    public void setIndexChapterReverse(int indexChapterReverse) {
+        this.indexChapterReverse = indexChapterReverse;
     }
 
     public String getChapter() {

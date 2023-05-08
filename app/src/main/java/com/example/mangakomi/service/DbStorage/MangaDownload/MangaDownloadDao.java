@@ -39,7 +39,7 @@ public interface MangaDownloadDao {
     @Query("Delete from manga_download WHERE id = :id")
     void deleteManga(int id);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     void  insert(MangaDownload mangaDownload);
 
 

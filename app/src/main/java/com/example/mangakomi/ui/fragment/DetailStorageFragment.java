@@ -3,10 +3,12 @@ package com.example.mangakomi.ui.fragment;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,11 +25,13 @@ import com.example.mangakomi.ui.activity.MangaDetailActivity;
 import com.example.mangakomi.ui.activity.MangaDetailStorageActivity;
 import com.example.mangakomi.ui.adapter.ChapterStorageAdapter;
 import com.example.mangakomi.util.event.ReloadListDataContentMangaEvent;
+import com.example.mangakomi.util.event.ReloadListDataContentMangaStorageEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public class DetailStorageFragment extends Fragment {
     private FragmentDetailStorageBinding fragmentDetailStorageBinding;
@@ -41,9 +45,10 @@ public class DetailStorageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         fragmentDetailStorageBinding = FragmentDetailStorageBinding.inflate(inflater, container, false);
         mangaDetailStorageActivity = (MangaDetailStorageActivity) getActivity();
-
+        mangaDetailStorageActivity.showProgressHUD();
         getData();
 //        assert mangaDetailActivity != null;
 //        if (!EventBus.getDefault().isRegistered(this)) {
@@ -64,12 +69,13 @@ public class DetailStorageFragment extends Fragment {
         MangaDownload mangaDownload = MangaDownloadDb.getInstance(getActivity()).mangaDownloadDao().getMangaById(MangaDetailStorageActivity.mangaId);
         mangaDetailStorageActivity.mangaDownload = mangaDownload;
         if (mangaDownload == null) {
+
 //            quay lai trang cu
         } else {
             displayManga(mangaDownload);
 
         }
-
+        mangaDetailStorageActivity.hideKProgressHUD();
     }
     private void displayManga(MangaDownload mangaDownload) {
         checkMaxLineContent = false;
@@ -88,15 +94,17 @@ public class DetailStorageFragment extends Fragment {
         fragmentDetailStorageBinding.tvContent.setText(null != mangaDownload.getSummary_manga() ? mangaDownload.getSummary_manga() : "");
         fragmentDetailStorageBinding.tvContent.setMaxLines(2);
 
-        String filePath = mangaDetailStorageActivity.getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDownload.getTitle_manga().trim()+"/poster.jpg";
+//        String filePath = mangaDetailStorageActivity.getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDownload.getTitle_manga().trim()+"/poster.jpg";
+        File cacheDir = getActivity().getApplicationContext().getCacheDir();
+        String filePath = cacheDir.getPath() + "/image/" + mangaDownload.getTitle_manga().trim()+"/poster.jpg";
+
+//        String filePath = Environment.getExternalStorageDirectory() + "/Komi/"+mangaDownload.getTitle_manga().trim()+"/poster.jpg";
 
 // Load ảnh từ tệp tin vào ImageView sử dụng Glide
         Glide.with(mangaDetailStorageActivity)
                 .load(new File(filePath))
                 .placeholder(R.drawable.img_no_image)
                 .into(fragmentDetailStorageBinding.imgManga);
-
-
         displayMangaListChapter();
 
     }
@@ -119,27 +127,25 @@ public class DetailStorageFragment extends Fragment {
         chapterStorageAdapter = new ChapterStorageAdapter(chapterDownloads, new ChapterStorageAdapter.IOnClickChapterItemListener() {
             @Override
             public void onClickItemChapter(ChapterDownload chapterDownload) {
+                mangaDetailStorageActivity.showProgressHUD();
                 goToChapter(chapterDownload);
             }
         });
         fragmentDetailStorageBinding.rcvChapterLatest.setAdapter(chapterStorageAdapter);
-        setDataAutoCompleteChapter(chapterDownloads);
-
     }
 
-    private void setDataAutoCompleteChapter(List<ChapterDownload> chapterDownloads) {
-        mangaDetailStorageActivity.chapterNameList.clear();
-        for (ChapterDownload chapter : chapterDownloads) {
-            if (chapter.getName_chapter() != null && !chapter.getName_chapter().isEmpty()) {
-                mangaDetailStorageActivity.chapterNameList.add(chapter.getName_chapter());
-            }
-        }
-    }
 
     private void goToChapter(ChapterDownload chapter) {
         mangaDetailStorageActivity.currentChapter = chapter;
         mangaDetailStorageActivity.activityMangaDetailStorageBinding.viewpager2MangaDetail.setCurrentItem(1);
+        EventBus.getDefault().post(new ReloadListDataContentMangaStorageEvent());
     }
 
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mangaDetailStorageActivity.hideKProgressHUD();
+    }
 }

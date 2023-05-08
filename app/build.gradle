@@ -76,5 +76,9 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.2.5'
     annotationProcessor 'androidx.room:room-compiler:2.2.5'
 
+//    Hud
+    implementation "io.github.rupinderjeet:kprogresshud:1.0.0"
 
+//    Zoom image
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }

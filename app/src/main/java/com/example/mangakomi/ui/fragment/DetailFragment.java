@@ -9,7 +9,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,10 +33,16 @@ import com.example.mangakomi.service.DbStorage.ChapterDownload.ChapterDownloadDb
 import com.example.mangakomi.service.DbStorage.MangaDownload.MangaDownloadDb;
 import com.example.mangakomi.service.DbStorage.MangaHistory.MangaHistoryDb;
 import com.example.mangakomi.R;
+import com.example.mangakomi.ui.activity.MainActivity;
 import com.example.mangakomi.ui.activity.MangaDetailActivity;
+import com.example.mangakomi.ui.activity.MangaGenresActivity;
+import com.example.mangakomi.ui.activity.MangaStorageActivity;
 import com.example.mangakomi.ui.adapter.ChapterAdapter;
 import com.example.mangakomi.service.api.ApiService;
 import com.example.mangakomi.databinding.FramentMangaDetailBinding;
+import com.example.mangakomi.ui.myCustom.MyDialog;
+import com.example.mangakomi.util.GlobalFunction;
+import com.example.mangakomi.util.IConstant;
 import com.example.mangakomi.util.event.ReloadIconBookMark;
 import com.example.mangakomi.util.event.ReloadListBookMark;
 import com.example.mangakomi.util.event.ReloadListDataContentMangaEvent;
@@ -87,6 +96,7 @@ public class DetailFragment extends Fragment {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        mangaDetailActivity.kProgressHUD.show();
         try {
             getMangaDetail();
             eventListener();
@@ -112,14 +122,52 @@ public class DetailFragment extends Fragment {
                 }
                 displayManga(mangaDetail);
                 setDataAutoCompleteChapter(mangaDetail.getList_chapter());
+                getDataChapterHistory(mangaDetail);
+
             }
 
             @Override
             public void onFailure(Call<MangaDetail> call, Throwable t) {
-                Toast.makeText(getActivity(), "err", Toast.LENGTH_SHORT).show();
+                if (mangaDetailActivity.kProgressHUD.isShowing()) {
+                    mangaDetailActivity.kProgressHUD.dismiss();
+                }
+
+                openDialogBack();
 
             }
         });
+    }
+
+    private void openDialogBack() {
+        MyDialog dialog = new MyDialog(getActivity(), 0, "Alert", "Error, download the story failed", Gravity.CENTER);
+        dialog.setOnButtonClickListener(() -> requireActivity().onBackPressed(), () -> {
+
+        });
+        dialog.show();
+
+    }
+
+    private void getDataChapterHistory(MangaDetail mangaDetail) {
+        MangaHistory manga = MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().getMangaByName(mangaDetail.getTitle_manga().trim());
+        if (manga != null) {
+            openDialogChapterHistory(manga);
+        }
+    }
+
+    private void openDialogChapterHistory(MangaHistory manga) {
+        MyDialog dialog = new MyDialog(getActivity(), 1, "Confirm", "Would you like to continue reading " + manga.getChapter(), Gravity.CENTER);
+
+        dialog.setOnButtonClickListener(new MyDialog.YesOnClickListener() {
+            @Override
+            public void onClick() {
+                try {
+                    goToChapter(mangaDetailActivity.mangaDetail.getList_chapter().size() - manga.getIndexChapterReverse());
+                } catch (Exception e) {
+                }
+            }
+        }, () -> {
+        });
+        dialog.show();
 
     }
 
@@ -182,11 +230,22 @@ public class DetailFragment extends Fragment {
         drawable.setSize(0, 3);
         dividerItemDecoration.setDrawable(drawable);
         framentMangaDetailBinding.rcvChapterLatest.addItemDecoration(dividerItemDecoration);
-        chapterAdapter = new ChapterAdapter(list_chapter, new ChapterAdapter.IOnClickChapterItemListener() {
+        chapterAdapter = new ChapterAdapter(mangaDetail, list_chapter, new ChapterAdapter.IOnClickChapterItemListener() {
             @Override
             public void onClickDownChapter(int index, String nameChapter) {
-                Log.d("Test", "test" + index);
-                Toast.makeText(getActivity(), "Test" + index, Toast.LENGTH_SHORT).show();
+
+                mangaDetailActivity.kProgressHUD.show();
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mangaDetailActivity.kProgressHUD.isShowing())
+                            mangaDetailActivity.kProgressHUD.dismiss();
+                    }
+                }, 3000);
+
+//                Log.d("Test", "test" + index);
+//                Toast.makeText(getActivity(), "Test" + index, Toast.LENGTH_SHORT).show();
                 downChapter(index, nameChapter);
             }
 
@@ -196,6 +255,10 @@ public class DetailFragment extends Fragment {
             }
         });
         framentMangaDetailBinding.rcvChapterLatest.setAdapter(chapterAdapter);
+        if (mangaDetailActivity.kProgressHUD.isShowing()) {
+            mangaDetailActivity.kProgressHUD.dismiss();
+
+        }
     }
 
     private void goToChapter(int index) {
@@ -219,30 +282,43 @@ public class DetailFragment extends Fragment {
                     public void run() {
 
 
-                        if (getActivity()!=null && ContextCompat.checkSelfPermission(mangaDetailActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        if (getActivity() != null && ContextCompat.checkSelfPermission(mangaDetailActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                             savePoster();
-                        }else {
+                        } else {
                             askPermission2();
                         }
 
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                saveManGaDownload(setMangaDownload(),mangaDetail.getList_chapter().get(index));
+                                saveManGaDownload(setMangaDownload(), mangaDetail.getList_chapter().get(index));
+                                MangaDownload mangaDownload = MangaDownloadDb.getInstance(getActivity().getApplicationContext()).mangaDownloadDao().getMangaByName(mangaDetail.getTitle_manga());
+                                if (mangaDownload != null) {
+                                    ChapterDownload chapterDownload = ChapterDownloadDb.getInstance(getActivity()).chapterDownloadDao().getChaptersByNameAndMangaId(nameChapter, mangaDownload.getId());
+                                    if (chapterDownload != null) {
 
+//                                        String folderPath = Environment.getExternalStorageDirectory() + "/Komi/" + mangaDetail.getTitle_manga().trim() + "/" + nameChapter.trim();
+                                        String folderPath = getActivity().getApplicationContext().getCacheDir().getPath() + "/image/" + mangaDetail.getTitle_manga().trim() + "/" + nameChapter.trim();
+//           test
+//            String folderPath = requireActivity().getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDetail.getTitle_manga().trim()+"/"+nameChapter.trim();
+
+                                        File myFolder = new File(folderPath);
+                                        if (!myFolder.exists()) {
+                                            for (String url : mangaContent.getImage()) {
+                                                getData(url, nameChapter);
+                                            }
+                                        }
+
+                                    }
+                                }
                             }
                         }).start();
 
-                        for (String url : mangaContent.getImage()){
-                            getData(url , nameChapter);
-                        }
 
                     }
                 }).start();
 
 //            save data in to SQLite;
-
-
 
 
             }
@@ -255,13 +331,19 @@ public class DetailFragment extends Fragment {
 
     private void savePoster() {
         Drawable drawable = framentMangaDetailBinding.imgManga.getDrawable();
-        Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
-        String folderPath = requireActivity().getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDetail.getTitle_manga().trim();
+        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+
+//        String folderPath = Environment.getExternalStorageDirectory() + "/Komi/" + mangaDetail.getTitle_manga().trim();
+
+        String folderPath = getActivity().getApplicationContext().getCacheDir().getPath() + "/image/" + mangaDetail.getTitle_manga().trim();
+
+//        test
+//        String folderPath = requireActivity().getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDetail.getTitle_manga().trim();
         File myFolder = new File(folderPath);
         if (!myFolder.exists()) {
             myFolder.mkdirs();
         }
-        File imageFile = new File(myFolder,  "/poster.jpg");
+        File imageFile = new File(myFolder, "/poster.jpg");
         if (!imageFile.exists()) {
             try {
                 FileOutputStream fos = new FileOutputStream(imageFile);
@@ -290,21 +372,21 @@ public class DetailFragment extends Fragment {
                 inputStream = con.getInputStream();
                 this.bitmap = BitmapFactory.decodeStream(inputStream);
                 inputStream.close();
-             if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
 
 //            Save Image into cache
-                 new Thread(new Runnable() {
-                     @Override
-                     public void run() {
-                         saveImage(bitmap, nameChapter);
-                     }
-                 }).start();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveImage(bitmap, nameChapter);
+                        }
+                    }).start();
 
-             }else {
-                 this.nameChapter = nameChapter;
-                 askPermission();
-             }
+                } else {
+                    this.nameChapter = nameChapter;
+                    askPermission();
+                }
             }
 
         } catch (Exception ex) {
@@ -314,35 +396,32 @@ public class DetailFragment extends Fragment {
 
     private void saveManGaDownload(MangaDownload mangaDownload, MangaDetail.Chapter chapter) {
         MangaDownload manga;
-        if(mangaDownload== null||mangaDownload.getTitle_manga()==null||mangaDownload.getTitle_manga().isEmpty()){
+        if (mangaDownload == null || mangaDownload.getTitle_manga() == null || mangaDownload.getTitle_manga().isEmpty()) {
             return;
         }
-        manga = MangaDownloadDb.getInstance(getActivity()).mangaDownloadDao().getMangaByName(mangaDownload.getTitle_manga());
+        manga = MangaDownloadDb.getInstance(requireActivity().getApplicationContext()).mangaDownloadDao().getMangaByName(mangaDownload.getTitle_manga());
 
         if (manga == null) {
             MangaDownloadDb.getInstance(getActivity()).mangaDownloadDao().insert(mangaDownload);
-             MangaDownload manga2 = MangaDownloadDb.getInstance(getActivity()).mangaDownloadDao().getMangaByName(mangaDownload.getTitle_manga());
-            Log.d("test list chapter", manga2.genre_manga);
+            MangaDownload manga2 = MangaDownloadDb.getInstance(getActivity()).mangaDownloadDao().getMangaByName(mangaDownload.getTitle_manga());
 
-            if (manga2!=null){
-                   ChapterDownload chapterDownload = new ChapterDownload(chapter.getLink_chapter(), chapter.getName_chapter(), chapter.getRelease_date(), manga2.getId());
-                   ChapterDownloadDb.getInstance(getActivity()).chapterDownloadDao().insert(chapterDownload);
-                    List<ChapterDownload> chapterD = ChapterDownloadDb.getInstance(getActivity()).chapterDownloadDao().getAllChapter();
-                   Log.d("test list chapter", chapterD.size()+"");
-
-               }
-        }
-        else {
-            ChapterDownload chap = ChapterDownloadDb.getInstance(getActivity()).chapterDownloadDao().getChapterByName(chapter.getName_chapter());
-            if (chap==null){
-                ChapterDownload chapterDownload = new ChapterDownload(chapter.getLink_chapter(), chapter.getName_chapter(), chapter.getRelease_date(), manga.getId());
-                ChapterDownloadDb.getInstance(getActivity()).chapterDownloadDao().insert(chapterDownload);
-                manga.setRating_manga(mangaDownload.getRating_manga());
-                manga.setRank_manga(mangaDownload.getRank_manga());
-                manga.setAlternative_manga(mangaDownload.getAlternative_manga());
-                MangaDownloadDb.getInstance(getActivity()).mangaDownloadDao().updateManga(manga);
+            if (manga2 != null && manga2.getId() != 0) {
+                ChapterDownload chapterDownload = new ChapterDownload(chapter.getLink_chapter(), chapter.getName_chapter(), chapter.getRelease_date(), manga2.getId());
+                ChapterDownloadDb.getInstance(getActivity().getApplicationContext()).chapterDownloadDao().insert(chapterDownload);
                 List<ChapterDownload> chapterD = ChapterDownloadDb.getInstance(getActivity()).chapterDownloadDao().getAllChapter();
-
+            }
+        } else {
+            ChapterDownload chap = ChapterDownloadDb.getInstance(getActivity().getApplicationContext()).chapterDownloadDao().getChaptersByNameAndMangaId(chapter.getName_chapter(), manga.getId());
+            if (chap == null) {
+                if (manga.getId() != 0) {
+                    ChapterDownload chapterDownload = new ChapterDownload(chapter.getLink_chapter(), chapter.getName_chapter(), chapter.getRelease_date(), manga.getId());
+                    ChapterDownloadDb.getInstance(getActivity().getApplicationContext()).chapterDownloadDao().insert(chapterDownload);
+                }
+//                manga.setRating_manga(mangaDownload.getRating_manga());
+//                manga.setRank_manga(mangaDownload.getRank_manga());
+//                manga.setAlternative_manga(mangaDownload.getAlternative_manga());
+//                MangaDownloadDb.getInstance(getActivity()).mangaDownloadDao().updateManga(manga);
+                List<ChapterDownload> chapterD = ChapterDownloadDb.getInstance(getActivity()).chapterDownloadDao().getAllChapter();
             }
 
 //            EventBus.getDefault().post(new ReloadIconBookMark());
@@ -351,11 +430,11 @@ public class DetailFragment extends Fragment {
         }
     }
 
-    private MangaDownload setMangaDownload(){
+    private MangaDownload setMangaDownload() {
 
 
-        MangaDownload mangaDownload = new MangaDownload(mangaDetail.getTitle_manga(), mangaDetail.getRating_manga(), mangaDetail.getRank_manga(),mangaDetail.getAlternative_manga()
-                ,mangaDetail.getGenre_manga(), mangaDetail.getType_manga(), mangaDetail.getStatus_manga(), mangaDetail.getSummary_manga());
+        MangaDownload mangaDownload = new MangaDownload(mangaDetail.getTitle_manga(), mangaDetail.getRating_manga(), mangaDetail.getRank_manga(), mangaDetail.getAlternative_manga()
+                , mangaDetail.getGenre_manga(), mangaDetail.getType_manga(), mangaDetail.getStatus_manga(), mangaDetail.getSummary_manga());
 
         return mangaDownload;
     }
@@ -364,6 +443,7 @@ public class DetailFragment extends Fragment {
     private void askPermission() {
         ActivityCompat.requestPermissions(mangaDetailActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
     }
+
     private void askPermission2() {
         ActivityCompat.requestPermissions(mangaDetailActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 200);
     }
@@ -371,7 +451,7 @@ public class DetailFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        if (requestCode==200){
+        if (requestCode == 200) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 try {
                     savePoster();
@@ -400,14 +480,22 @@ public class DetailFragment extends Fragment {
     private void saveImage(Bitmap bitmap, String nameChapter) {
         try {
 
-            String folderPath = requireActivity().getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDetail.getTitle_manga().trim()+"/"+nameChapter.trim();
+            File cacheDir = getActivity().getApplicationContext().getCacheDir();
+            String folderPath = cacheDir.getPath() + "/image/" + mangaDetail.getTitle_manga().trim() + "/" + nameChapter.trim();
+
+//            String folderPath = Environment.getExternalStorageDirectory() + "/Komi/" + mangaDetail.getTitle_manga().trim() + "/" + nameChapter.trim();
+//
+//           test
+//            String folderPath = requireActivity().getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDetail.getTitle_manga().trim()+"/"+nameChapter.trim();
 
             File myFolder = new File(folderPath);
             if (!myFolder.exists()) {
                 myFolder.mkdirs();
             }
+
+
             File imageFile = new File(myFolder, System.currentTimeMillis() + ".jpg");
-            FileOutputStream outputFile  = new FileOutputStream(imageFile);
+            FileOutputStream outputFile = new FileOutputStream(imageFile);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputFile);
             outputFile.flush();
             outputFile.close();
@@ -416,6 +504,26 @@ public class DetailFragment extends Fragment {
     }
 
     private void eventListener() {
+
+//    Search
+        framentMangaDetailBinding.toolbar.btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(getActivity(), MangaGenresActivity.class, IConstant.ACTION, IConstant.ACTION_SEARCH);
+            }
+        });
+
+        //    history
+
+        framentMangaDetailBinding.toolbar.btnAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(getActivity(), MangaStorageActivity.class);
+
+            }
+        });
+
+
         //        Click Read  more
         framentMangaDetailBinding.btnImgReadMore.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -481,7 +589,7 @@ public class DetailFragment extends Fragment {
         } else {
             manga.setLink(mangaHistory.getLink());
             manga.setStatusBookMark(1);
-            manga.setIndexChapter(mangaHistory.getIndexChapter());
+            manga.setIndexChapterReverse(mangaHistory.getIndexChapterReverse());
             manga.setChapter(mangaHistory.getChapter());
             manga.setRating(mangaHistory.getRating());
             manga.setRanking(manga.getRanking());
@@ -505,6 +613,7 @@ public class DetailFragment extends Fragment {
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+        mangaDetailActivity.hideKProgressHUD();
     }
 
 

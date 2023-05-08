@@ -7,6 +7,8 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.example.mangakomi.model.ChapterDownload;
+import com.example.mangakomi.model.MangaDownload;
+
 
 @Database(entities = {ChapterDownload.class}, version = 1)
 public abstract class ChapterDownloadDb extends RoomDatabase {

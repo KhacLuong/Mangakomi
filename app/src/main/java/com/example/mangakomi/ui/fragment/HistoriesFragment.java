@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mangakomi.service.DbStorage.MangaHistory.MangaHistoryDb;
 import com.example.mangakomi.ui.activity.MangaDetailActivity;
+import com.example.mangakomi.ui.activity.SecondaryActivity;
 import com.example.mangakomi.ui.adapter.MangaHistoryAdapter;
 import com.example.mangakomi.util.callback.ItemTouchHelperListener;
 import com.example.mangakomi.util.callback.RecyclerviewItemTouchHelper;
@@ -34,26 +35,31 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HistoriesFragment extends Fragment implements ItemTouchHelperListener {
     private FragmentHistoriesBinding fragmentHistoriesBinding;
     private List<MangaHistory> mangaList;
     private MangaHistoryAdapter mangaHistoryAdapter;
-
+    private SecondaryActivity secondaryActivity;
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentHistoriesBinding = FragmentHistoriesBinding.inflate(inflater, container, false);
+        secondaryActivity = (SecondaryActivity) getActivity();
         if(!EventBus.getDefault().isRegistered(this)){
             EventBus.getDefault().register(this);
         }
+
         mangaList = new ArrayList<>();
         initUi(mangaList);
         getListMangaHistory();
         eventListener();
+
         return fragmentHistoriesBinding.getRoot();
     }
 
@@ -79,13 +85,16 @@ public class HistoriesFragment extends Fragment implements ItemTouchHelperListen
 
         if (mangaList==null||mangaList.isEmpty()){
             fragmentHistoriesBinding.tvNoData.setVisibility(View.VISIBLE);
+
             mangaHistoryAdapter.setData(mangaList);
             mangaHistoryAdapter.notifyDataSetChanged();
             return;
         }
+        Collections.reverse(mangaList);
         mangaHistoryAdapter.setData(mangaList);
         mangaHistoryAdapter.notifyDataSetChanged();
         fragmentHistoriesBinding.tvNoData.setVisibility(View.GONE);
+
 
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -117,7 +126,6 @@ public class HistoriesFragment extends Fragment implements ItemTouchHelperListen
             snackbar.setAction("Undo", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     undoHistory(manga);
                     if((indexDelete==0||indexDelete==mangaList.size())){
                         fragmentHistoriesBinding.rcvHistory.scrollToPosition(indexDelete);
@@ -165,6 +173,9 @@ public class HistoriesFragment extends Fragment implements ItemTouchHelperListen
 
         EventBus.getDefault().post(new ReloadListDataHistory());
     }
+
+
+
 
     //    end  Xử lý xóa và undo
 }

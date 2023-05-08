@@ -6,24 +6,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mangakomi.R;
 import com.example.mangakomi.databinding.ItemChapterLatestDetailBinding;
+import com.example.mangakomi.model.ChapterDownload;
 import com.example.mangakomi.model.MangaDetail;
+import com.example.mangakomi.model.MangaDownload;
+import com.example.mangakomi.service.DbStorage.ChapterDownload.ChapterDownloadDb;
+import com.example.mangakomi.service.DbStorage.MangaDownload.MangaDownloadDb;
+import com.example.mangakomi.service.DbStorage.MangaHistory.MangaHistoryDb;
 
 import java.util.List;
 
 public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterLatestViewHolder> {
 
     private List<MangaDetail.Chapter> chapterList;
+    private MangaDetail mangaDetail;
     public final ChapterAdapter.IOnClickChapterItemListener iOnClickChapterItemListener;
 
     public void setData(List<MangaDetail.Chapter> chapterList) {
         this.chapterList = chapterList;
     }
 
-    public ChapterAdapter(List<MangaDetail.Chapter> chapterList, ChapterAdapter.IOnClickChapterItemListener iOnClickChapterItemListener) {
+    public ChapterAdapter(MangaDetail mangaDetail, List<MangaDetail.Chapter> chapterList, ChapterAdapter.IOnClickChapterItemListener iOnClickChapterItemListener) {
+        this.mangaDetail = mangaDetail;
         this.chapterList = chapterList;
         this.iOnClickChapterItemListener = iOnClickChapterItemListener;
     }
@@ -44,6 +53,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterL
     @Override
     public void onBindViewHolder(@NonNull ChapterLatestViewHolder holder, @SuppressLint("RecyclerView") int position) {
         try{
+            final int  index = position;
             MangaDetail.Chapter chapter = chapterList.get(position);
             if (chapter==null)
                 return;
@@ -70,6 +80,17 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterL
                     iOnClickChapterItemListener.onClickDownChapter(position, chapter.name_chapter);
                 }
             });
+            MangaDownload mangaDownload = MangaDownloadDb.getInstance(holder.itemView.getContext()).mangaDownloadDao().getMangaByName(mangaDetail.getTitle_manga());
+            if (mangaDownload==null)
+                return;
+            ChapterDownload chapterDownload = ChapterDownloadDb.getInstance(holder.itemView.getContext()).chapterDownloadDao().getChaptersByNameAndMangaId(chapter.getName_chapter(), mangaDownload.getId());
+            if(chapterDownload!=null && holder.itemChapterLatestDetailBinding.tvChapter.getText().toString().trim().equals(chapterDownload.getName_chapter().trim())){
+                holder.itemChapterLatestDetailBinding.btnDownChapter.setImageResource(R.drawable.ic_baseline_file_download_done_24);
+            }else {
+                holder.itemChapterLatestDetailBinding.btnDownChapter.setImageResource(R.drawable.ic_baseline_download_24);
+            }
+
+
         }catch (Exception e) {
             e.printStackTrace();
         }

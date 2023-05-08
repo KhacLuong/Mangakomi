@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/define_dimen_300"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_gray_white_shape_boder_orange_soft_corner_10"
+    android:elevation="@dimen/define_dimen_10"
+    android:layout_gravity="center"
+    android:id="@+id/layout_dialog"
+    >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/define_dimen_300"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints">
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="@string/title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/border1"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="@dimen/define_dimen_2"
+            android:background="@color/dividerColor"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="230dp"
+            android:layout_height="wrap_content"
+            android:text="@string/content"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/border1"
+            android:layout_marginTop="@dimen/define_dimen_10"/>
+        <TextView
+            android:id="@+id/border2"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/dividerColor"
+            app:layout_constraintTop_toBottomOf="@+id/tv_content"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/define_dimen_10"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/border2"
+            tools:layout_editor_absoluteX="1dp">
+
+            <Button
+                android:id="@+id/btn_dialog_no"
+                android:layout_width="@dimen/define_dimen_100"
+                android:layout_height="34dp"
+                android:layout_marginEnd="@dimen/define_dimen_20"
+                android:background="@drawable/bg_gray_white_shape_boder_gray__corner_10"
+                android:text="@string/no_thanks"
+                android:textColor="@color/textColorSecondary"
+                android:textStyle="bold"
+                android:textSize="@dimen/define_dimen_12"
+                tools:ignore="SpUsage" />
+
+            <Button
+
+                android:id="@+id/btn_dialog_yes"
+                android:layout_width="@dimen/define_dimen_100"
+                android:layout_height="34dp"
+                android:layout_marginStart="@dimen/define_dimen_20"
+                android:background="@drawable/bg_gray_white_shape_boder_gray__corner_10"
+                android:text="@string/yes"
+                android:textStyle="bold"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="@dimen/define_dimen_12"
+                tools:ignore="SpUsage" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/define_dimen_10"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+            tools:ignore="MissingConstraints" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+</LinearLayout>

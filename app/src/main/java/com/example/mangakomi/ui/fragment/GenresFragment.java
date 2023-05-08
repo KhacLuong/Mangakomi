@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.example.mangakomi.ui.activity.MangaGenresActivity;
+import com.example.mangakomi.ui.activity.SecondaryActivity;
 import com.example.mangakomi.ui.adapter.GenresAdapter;
 import com.example.mangakomi.databinding.FragmentGenresBinding;
 import com.example.mangakomi.util.GlobalFunction;
@@ -23,11 +24,14 @@ import java.util.List;
 public class GenresFragment extends Fragment {
     private FragmentGenresBinding fragmentGenresBinding;
     private GenresAdapter genresAdapter;
+    private SecondaryActivity secondaryActivity;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentGenresBinding = FragmentGenresBinding.inflate(inflater, container, false);
+        secondaryActivity = (SecondaryActivity) getActivity();
+
         buildData();
 
 
@@ -49,9 +53,16 @@ public class GenresFragment extends Fragment {
         fragmentGenresBinding.rcvGenres.setLayoutManager(gridLayoutManager);
         genresAdapter = new GenresAdapter(genresList ,this::goToMangaDetail);
         fragmentGenresBinding.rcvGenres.setAdapter(genresAdapter);
+
     }
 
     private void goToMangaDetail(String genres) {
         GlobalFunction.startActivity(getActivity(), MangaGenresActivity.class, IConstant.ACTION, IConstant.ACTION_GENRES, IConstant.KEY_VALUE, genres);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 }

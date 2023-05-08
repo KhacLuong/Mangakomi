@@ -3,16 +3,23 @@ package com.example.mangakomi.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mangakomi.R;
 import com.example.mangakomi.databinding.ActivityMangaStorageBinding;
+import com.example.mangakomi.model.ChapterDownload;
+import com.example.mangakomi.util.callback.RecyclerviewItemMangaStorageTouchHelper;
+import com.example.mangakomi.util.callback.RecyclerviewItemTouchHelper;
 import com.example.mangakomi.util.event.ReloadListDataMangaStorage;
 import com.example.mangakomi.model.MangaDownload;
 import com.example.mangakomi.service.DbStorage.ChapterDownload.ChapterDownloadDb;
@@ -29,11 +36,15 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 
 public class MangaStorageActivity extends AppCompatActivity implements ItemTouchHelperListener {
     public ActivityMangaStorageBinding activityMangaStorageBinding;
     private List<MangaDownload> mangaList;
     private MangaStorageAdapter mangaStorageAdapter;
+    private KProgressHUD kProgressHUD;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +55,36 @@ public class MangaStorageActivity extends AppCompatActivity implements ItemTouch
             EventBus.getDefault().register(this);
         }
         setContentView(activityMangaStorageBinding.getRoot());
+
+        kProgressHUD = KProgressHUD.create(this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("Downloading data")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f)
+                .show();
         mangaList = new ArrayList<MangaDownload>();
         initUi(mangaList);
         getData();
+        eventSwipeListener();
 
+        initListener();
+
+        List<ChapterDownload> chapterDownloads = ChapterDownloadDb.getInstance(getApplicationContext()).chapterDownloadDao().getAllChapter();
+        List<MangaDownload> mangaDownloads = MangaDownloadDb.getInstance(getApplicationContext()).mangaDownloadDao().getAllManga();
+        Toast.makeText(this, chapterDownloads.size()+"", Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void initListener() {
+        //    Search
+        activityMangaStorageBinding.toolbar.btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(MangaStorageActivity.this, MangaGenresActivity.class, IConstant.ACTION, IConstant.ACTION_SEARCH) ;
+            }
+        });
 
 
     }
@@ -58,11 +95,17 @@ public class MangaStorageActivity extends AppCompatActivity implements ItemTouch
         mangaList = MangaDownloadDb.getInstance(getApplication()).mangaDownloadDao().getAllManga();
         if (mangaList == null || mangaList.isEmpty()) {
             activityMangaStorageBinding.tvNoData.setVisibility(View.VISIBLE);
+            if (kProgressHUD.isShowing()){
+                kProgressHUD.dismiss();
+            }
             return;
         }
         mangaStorageAdapter.setData(mangaList);
         mangaStorageAdapter.notifyDataSetChanged();
         activityMangaStorageBinding.tvNoData.setVisibility(View.GONE);
+        if (kProgressHUD.isShowing()){
+            kProgressHUD.dismiss();
+        }
     }
 
     private void initUi(List<MangaDownload> mangaList) {
@@ -73,46 +116,49 @@ public class MangaStorageActivity extends AppCompatActivity implements ItemTouch
     }
 
     private void goToMangaDetail(int id) {
-        GlobalFunction.startActivity(MangaStorageActivity.this,MangaDetailStorageActivity.class, IConstant.KEY_VALUE, id+"");
+        GlobalFunction.startActivity(MangaStorageActivity.this,MangaDetailStorageActivity.class, IConstant.KEY_VALUE, id);
     }
 
-    @Override
-    public void onSwipe(RecyclerView.ViewHolder viewHolder) {
-        if(viewHolder instanceof MangaStorageAdapter.MangaStorageViewHolder){
-            MangaDownload manga= mangaList.get(viewHolder.getAbsoluteAdapterPosition());
-            int indexDelete = viewHolder.getBindingAdapterPosition();
-            deleteStorageDb(manga);
-            deleteStorageFile(manga);
-//            remove
-            mangaStorageAdapter.removeItem(indexDelete);
-
-//            Snackbar snackbar = Snackbar.make(fragmentBookmarkedBinding.layoutRoot, manga.getName() +"removed", Snackbar.LENGTH_LONG);
-//            snackbar.setAction("Undo", new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//
-//                    undoHistory(manga);
-//                    if((indexDelete==0||indexDelete==mangaList.size())){
-//                        fragmentBookmarkedBinding.rcvBookmark.scrollToPosition(indexDelete);
-//                    }
-//                }
-//            });
-//            snackbar.setActionTextColor(Color.YELLOW);
-//            snackbar.show();
-        }
+    private void eventSwipeListener() {
+        ItemTouchHelper.SimpleCallback  simpleCallback= new RecyclerviewItemMangaStorageTouchHelper(0, ItemTouchHelper.LEFT,this );
+        new ItemTouchHelper(simpleCallback).attachToRecyclerView(activityMangaStorageBinding.rcvStorage);
     }
+
 
     private void deleteStorageFile(MangaDownload mangaDownload) {
-        File cacheDir = getCacheDir();
-        File imageDir = new File(cacheDir, "image");
-        File fileToDelete = new File(imageDir, mangaDownload.getTitle_manga().trim());
+//        String folderPath =  Environment.getExternalStorageDirectory() + "/Komi/"+mangaDownload.getTitle_manga().trim();
+//        String path = getFilesDir().getPath() + "/image";
+        String folderPath =getApplicationContext().getCacheDir().getPath() + "/image/" + mangaDownload.getTitle_manga().trim();
 
-        if (fileToDelete.delete()) {
-            // File deleted successfully
-        } else {
-            // Failed to delete file
+//        File cacheDir = getCacheDir();
+//        File imageDir = new File(cacheDir, "image");
+        File fileToDelete = new File(folderPath);
+        deleteRecursive(fileToDelete);
+
+//        if (!fileToDelete.exists()) {
+//            Toast.makeText(this, "not exists", Toast.LENGTH_SHORT).show();
+//
+//        }else {
+//            if (fileToDelete.delete()) {
+//                Toast.makeText(this, "deleteFile success", Toast.LENGTH_SHORT).show();
+//                // File deleted successfully
+//            } else {
+//                Toast.makeText(this, "deleteFile fail", Toast.LENGTH_SHORT).show();
+//
+//                // Failed to delete file
+//            }
+//        }
+
+
+    }
+
+    public  static boolean deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory()) {
+            for (File child : Objects.requireNonNull(fileOrDirectory.listFiles())) {
+                deleteRecursive(child);
+            }
         }
-
+       return fileOrDirectory.delete();
     }
 
     private void deleteStorageDb(MangaDownload mangaDownload){
@@ -131,6 +177,7 @@ public class MangaStorageActivity extends AppCompatActivity implements ItemTouch
 
 
 
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -143,7 +190,41 @@ public class MangaStorageActivity extends AppCompatActivity implements ItemTouch
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+        if (kProgressHUD.isShowing()){
+            kProgressHUD.dismiss();
+        }
     }
+
+
+    @Override
+    public void onSwipe(RecyclerView.ViewHolder viewHolder) {
+        if(viewHolder instanceof MangaStorageAdapter.MangaStorageViewHolder){
+            MangaDownload manga= mangaList.get(viewHolder.getAbsoluteAdapterPosition());
+            int indexDelete = viewHolder.getBindingAdapterPosition();
+            deleteStorageDb(manga);
+            deleteStorageFile(manga);
+//            remove
+//            mangaStorageAdapter.removeItem(indexDelete);
+
+//            Snackbar snackbar = Snackbar.make(fragmentBookmarkedBinding.layoutRoot, manga.getName() +"removed", Snackbar.LENGTH_LONG);
+//            snackbar.setAction("Undo", new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//
+//                    undoHistory(manga);
+//                    if((indexDelete==0||indexDelete==mangaList.size())){
+//                        fragmentBookmarkedBinding.rcvBookmark.scrollToPosition(indexDelete);
+//                    }
+//                }
+//            });
+//            snackbar.setActionTextColor(Color.YELLOW);
+//            snackbar.show();
+        }
+    }
+
+
+
+
     //get image
 //    private void getImageFromCache(String path) {
 //        File cacheDir = getCacheDir();
@@ -186,8 +267,6 @@ public class MangaStorageActivity extends AppCompatActivity implements ItemTouch
 //
 //            activityMangaStorageBinding.image.setImageBitmap(bitmaps.get(0));
 //        }
-
-
 
 
 }
