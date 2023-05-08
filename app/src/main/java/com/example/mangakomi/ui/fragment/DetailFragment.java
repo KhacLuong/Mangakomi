@@ -91,6 +91,7 @@ public class DetailFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         framentMangaDetailBinding = FramentMangaDetailBinding.inflate(inflater, container, false);
+        requireActivity().getWindow().setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.black));
         mangaDetailActivity = (MangaDetailActivity) getActivity();
         assert mangaDetailActivity != null;
         if (!EventBus.getDefault().isRegistered(this)) {

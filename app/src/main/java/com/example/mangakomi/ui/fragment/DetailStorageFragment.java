@@ -47,6 +47,7 @@ public class DetailStorageFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         fragmentDetailStorageBinding = FragmentDetailStorageBinding.inflate(inflater, container, false);
+        requireActivity().getWindow().setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.black));
         mangaDetailStorageActivity = (MangaDetailStorageActivity) getActivity();
         mangaDetailStorageActivity.showProgressHUD();
         getData();

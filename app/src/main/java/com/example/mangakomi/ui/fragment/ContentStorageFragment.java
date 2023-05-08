@@ -79,6 +79,7 @@ public class ContentStorageFragment extends Fragment {
                 if (dy>0){
                     fragmentContentBinding.btnFloating.hide();
 
+
                 }else {
                     fragmentContentBinding.btnFloating.show();
                 }
@@ -88,6 +89,7 @@ public class ContentStorageFragment extends Fragment {
         fragmentContentBinding.btnFloating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fragmentContentBinding.nestedScrollView.smoothScrollTo(0, 0);
                 fragmentContentBinding.rcvManga.smoothScrollToPosition(0);
             }
         });
