@@ -36,7 +36,6 @@ public class MangaDetailStorageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.yellow2));
         activityMangaDetailStorageBinding = ActivityMangaDetailStorageBinding.inflate(getLayoutInflater());
         setContentView(activityMangaDetailStorageBinding.getRoot());
         kProgressHUD = KProgressHUD.create(this)
@@ -48,7 +47,7 @@ public class MangaDetailStorageActivity extends AppCompatActivity {
                 .setDimAmount(0.5f);
 
 
-        activityMangaDetailStorageBinding.viewpager2MangaDetail.setUserInputEnabled(true);
+        activityMangaDetailStorageBinding.viewpager2MangaDetail.setUserInputEnabled(false);
         MangaViewPagerStorageAdapter mangaViewPagerAdapter = new MangaViewPagerStorageAdapter(this);
         activityMangaDetailStorageBinding.viewpager2MangaDetail.setAdapter(mangaViewPagerAdapter);
         getDataIntent();

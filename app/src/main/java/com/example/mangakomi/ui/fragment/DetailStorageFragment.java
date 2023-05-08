@@ -128,7 +128,7 @@ public class DetailStorageFragment extends Fragment {
         chapterStorageAdapter = new ChapterStorageAdapter(chapterDownloads, new ChapterStorageAdapter.IOnClickChapterItemListener() {
             @Override
             public void onClickItemChapter(ChapterDownload chapterDownload) {
-                mangaDetailStorageActivity.showProgressHUD();
+                mangaDetailStorageActivity.kProgressHUD.show();
                 goToChapter(chapterDownload);
             }
         });
@@ -146,7 +146,6 @@ public class DetailStorageFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         mangaDetailStorageActivity.hideKProgressHUD();
     }
 }

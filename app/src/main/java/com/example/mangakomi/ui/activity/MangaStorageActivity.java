@@ -71,9 +71,9 @@ public class MangaStorageActivity extends AppCompatActivity implements ItemTouch
 
         initListener();
 
-        List<ChapterDownload> chapterDownloads = ChapterDownloadDb.getInstance(getApplicationContext()).chapterDownloadDao().getAllChapter();
-        List<MangaDownload> mangaDownloads = MangaDownloadDb.getInstance(getApplicationContext()).mangaDownloadDao().getAllManga();
-        Toast.makeText(this, chapterDownloads.size()+"", Toast.LENGTH_SHORT).show();
+//        List<ChapterDownload> chapterDownloads = ChapterDownloadDb.getInstance(getApplicationContext()).chapterDownloadDao().getAllChapter();
+//        List<MangaDownload> mangaDownloads = MangaDownloadDb.getInstance(getApplicationContext()).mangaDownloadDao().getAllManga();
+//        Toast.makeText(this, chapterDownloads.size()+"", Toast.LENGTH_SHORT).show();
 
     }
 

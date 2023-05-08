@@ -13,15 +13,20 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/define_dimen_180"
         app:cardCornerRadius="@dimen/define_dimen_10"
         >
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <ImageView
             android:id="@+id/img_manga"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/define_dimen_180"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:src="@drawable/img_no_image" />
+    </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
 

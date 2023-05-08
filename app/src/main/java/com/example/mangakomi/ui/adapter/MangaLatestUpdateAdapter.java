@@ -54,6 +54,7 @@ public class MangaLatestUpdateAdapter  extends RecyclerView.Adapter<MangaLatestU
                 Glide.with(holder.itemLatestUpdateBinding.imgManga.getContext())
                         .load(manga.getPoster_manga())
                         .error(R.drawable.img_no_image)
+
                         .into(holder.itemLatestUpdateBinding.imgManga);
             }
             holder.itemLatestUpdateBinding.tvNameManga.setText(manga.getTitle_manga());

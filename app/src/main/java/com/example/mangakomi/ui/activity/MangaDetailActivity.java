@@ -33,7 +33,7 @@ public class MangaDetailActivity extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.yellow2));
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.black));
         activityMangaBinding = ActivityMangaDetailBinding.inflate(getLayoutInflater());
         setContentView(activityMangaBinding.getRoot());
         chapterNameList = new ArrayList<>();
@@ -46,7 +46,7 @@ public class MangaDetailActivity extends AppCompatActivity  {
                 .setAnimationSpeed(2)
                 .setDimAmount(0.5f);
 
-        activityMangaBinding.viewpager2MangaDetail.setUserInputEnabled(true);
+        activityMangaBinding.viewpager2MangaDetail.setUserInputEnabled(false);
         MangaViewPagerAdapter mangaViewPagerAdapter = new MangaViewPagerAdapter(this);
         activityMangaBinding.viewpager2MangaDetail.setAdapter(mangaViewPagerAdapter);
         getDataIntent();

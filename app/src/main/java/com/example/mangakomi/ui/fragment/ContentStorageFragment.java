@@ -15,7 +15,9 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.ScaleAnimation;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 
 import com.example.mangakomi.R;
 import com.example.mangakomi.databinding.FragmentContentStorageBinding;
@@ -45,16 +47,19 @@ public class ContentStorageFragment extends Fragment {
     private MangaDetailStorageActivity mangaDetailStorageActivity;
     private List<Bitmap> bitmapList;
     private MangaContentStorageAdapter adapter;
+    private LinearLayoutManager linearLayoutManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         fragmentContentBinding = FragmentContentStorageBinding.inflate(inflater, container, false);
+
+
         requireActivity().getWindow().setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.black));
         mangaDetailStorageActivity = (MangaDetailStorageActivity) getActivity();
         mangaDetailStorageActivity.showProgressHUD();
         bitmapList = new ArrayList<>();
-        if(!EventBus.getDefault().isRegistered(this)){
+        if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
 
@@ -65,7 +70,7 @@ public class ContentStorageFragment extends Fragment {
             initRcvManga();
             getData();
             initListener();
-        }catch (Exception e){
+        } catch (Exception e) {
             requireActivity().onBackPressed();
         }
 
@@ -73,15 +78,34 @@ public class ContentStorageFragment extends Fragment {
     }
 
     private void initListener() {
+        ScaleAnimation scaleAnimationHide = new ScaleAnimation(1.0f, 1.0f, 1.0f, 0.0f);
+        scaleAnimationHide.setDuration(500);
+
+        ScaleAnimation scaleAnimationShow = new ScaleAnimation(1.0f, 1.0f, 0.0f, 1.0f);
+        scaleAnimationShow.setDuration(500);
         fragmentContentBinding.rcvManga.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (dy>0){
+                if (dy > 20 && linearLayoutManager.findFirstVisibleItemPosition()>0 ) {
                     fragmentContentBinding.btnFloating.hide();
+                    if (fragmentContentBinding.toolbar.layoutToolbar.getVisibility()!=View.GONE){
+                        fragmentContentBinding.toolbar.layoutToolbar.startAnimation(scaleAnimationHide);
+                        fragmentContentBinding.toolbar.layoutToolbar.setVisibility(View.GONE);
 
+                    }
+                    if (fragmentContentBinding.layoutHeader.getVisibility()!=View.GONE){
+                        fragmentContentBinding.layoutHeader.startAnimation(scaleAnimationHide);
+                        fragmentContentBinding.layoutHeader.setVisibility(View.GONE);
+                    }
 
-                }else {
+                } else if(dy<0){
                     fragmentContentBinding.btnFloating.show();
+                }
+                if(linearLayoutManager.findFirstVisibleItemPosition() == 0 && dy<0&&linearLayoutManager.findFirstCompletelyVisibleItemPosition()<1){
+                    if (fragmentContentBinding.layoutHeader.getVisibility()==View.GONE){
+                        fragmentContentBinding.layoutHeader.startAnimation(scaleAnimationShow);
+                        fragmentContentBinding.layoutHeader.setVisibility(View.VISIBLE);
+                    }
                 }
                 super.onScrolled(recyclerView, dx, dy);
             }
@@ -89,8 +113,19 @@ public class ContentStorageFragment extends Fragment {
         fragmentContentBinding.btnFloating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fragmentContentBinding.nestedScrollView.smoothScrollTo(0, 0);
+
                 fragmentContentBinding.rcvManga.smoothScrollToPosition(0);
+                if (fragmentContentBinding.layoutHeader.getVisibility()==View.GONE){
+                    fragmentContentBinding.layoutHeader.startAnimation(scaleAnimationShow);
+                    fragmentContentBinding.layoutHeader.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        fragmentContentBinding.btnBackScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mangaDetailStorageActivity.activityMangaDetailStorageBinding.viewpager2MangaDetail.setCurrentItem(0);
             }
         });
     }
@@ -151,17 +186,20 @@ public class ContentStorageFragment extends Fragment {
             fragmentContentBinding.tvChapter.setText(mangaDetailStorageActivity.currentChapter.getName_chapter());
         }
     }
-        private void initRcvManga() {
+
+    private void initRcvManga() {
         bitmapList = new ArrayList<>();
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL, false);
-            fragmentContentBinding.rcvManga.setLayoutManager(linearLayoutManager);
-            adapter = new MangaContentStorageAdapter();
-            fragmentContentBinding.rcvManga.setAdapter(adapter);
+         linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        fragmentContentBinding.rcvManga.setLayoutManager(linearLayoutManager);
+        adapter = new MangaContentStorageAdapter();
+        fragmentContentBinding.rcvManga.setAdapter(adapter);
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(ReloadListDataContentMangaStorageEvent event ){
+    public void onMessageEvent(ReloadListDataContentMangaStorageEvent event) {
         getData();
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();

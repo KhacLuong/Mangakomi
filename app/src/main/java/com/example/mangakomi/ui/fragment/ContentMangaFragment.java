@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
@@ -56,7 +57,7 @@ public class ContentMangaFragment extends Fragment {
     private MangaContent mangaContent;
     private MangaDetail.Chapter currentChapter;
     private ArrayAdapter<String> adapterChapter;
-
+    private LinearLayoutManager linearLayoutManager;
     private ChapterSpinnerAdapter spinnerAdapter;
 
 
@@ -93,6 +94,52 @@ public class ContentMangaFragment extends Fragment {
 
 
     private void eventListener() {
+        ScaleAnimation scaleAnimationHide = new ScaleAnimation(1.0f, 1.0f, 1.0f, 0.0f);
+        scaleAnimationHide.setDuration(500);
+
+        ScaleAnimation scaleAnimationShow = new ScaleAnimation(1.0f, 1.0f, 0.0f, 1.0f);
+        scaleAnimationShow.setDuration(500);
+
+        fragmentContentBinding.rcvManga.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 20 && linearLayoutManager.findFirstVisibleItemPosition()>0 ) {
+                    fragmentContentBinding.btnFloating.hide();
+                    if (fragmentContentBinding.toolbar.layoutToolbar.getVisibility()!=View.GONE){
+                        fragmentContentBinding.toolbar.layoutToolbar.startAnimation(scaleAnimationHide);
+                        fragmentContentBinding.toolbar.layoutToolbar.setVisibility(View.GONE);
+
+                    }
+                    if (fragmentContentBinding.layoutHeader.getVisibility()!=View.GONE){
+                        fragmentContentBinding.layoutHeader.startAnimation(scaleAnimationHide);
+                        fragmentContentBinding.layoutHeader.setVisibility(View.GONE);
+                    }
+
+                } else if(dy<0){
+                    fragmentContentBinding.btnFloating.show();
+                }
+                if(linearLayoutManager.findFirstVisibleItemPosition() == 0 && dy<0&&linearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0){
+                    if (fragmentContentBinding.layoutHeader.getVisibility()==View.GONE){
+                        fragmentContentBinding.layoutHeader.startAnimation(scaleAnimationShow);
+                        fragmentContentBinding.layoutHeader.setVisibility(View.VISIBLE);
+                    }
+                }
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+        fragmentContentBinding.btnFloating.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                fragmentContentBinding.rcvManga.smoothScrollToPosition(0);
+                if (fragmentContentBinding.layoutHeader.getVisibility()==View.GONE){
+                    fragmentContentBinding.layoutHeader.startAnimation(scaleAnimationShow);
+                    fragmentContentBinding.layoutHeader.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         //    Search
         fragmentContentBinding.toolbar.btnSearch.setOnClickListener(new View.OnClickListener() {
@@ -125,11 +172,7 @@ public class ContentMangaFragment extends Fragment {
                     mangaDetailActivity.showProgressHUD();
                 if(mangaDetailActivity.indexCurrentChapter>=1){
                     setData(--mangaDetailActivity.indexCurrentChapter);
-//                    if(mangaActivity.indexCurrentChapter==1){
-//                        fragmentContentBinding.btnImgNextChapter.setImageResource(R.drawable.ic_baseline_arrow_forward_ios_36);
-//                        fragmentContentBinding.btnImgNextChapter.setBackground(getActivity().);
-//
-//                    }
+
                 }else {
                     mangaDetailActivity.hideKProgressHUD();
                     Toast.makeText(getActivity(), "The last chapter", Toast.LENGTH_SHORT).show();
@@ -147,27 +190,6 @@ public class ContentMangaFragment extends Fragment {
                     mangaDetailActivity.hideKProgressHUD();
 
                 }
-            }
-        });
-
-        fragmentContentBinding.rcvManga.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (dy>0){
-                    fragmentContentBinding.btnFloating.hide();
-
-
-                }else {
-                    fragmentContentBinding.btnFloating.show();
-                }
-                super.onScrolled(recyclerView, dx, dy);
-            }
-        });
-        fragmentContentBinding.btnFloating.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fragmentContentBinding.nestedScrollView.smoothScrollTo(0, 0);
-                fragmentContentBinding.rcvManga.smoothScrollToPosition(0);
             }
         });
     }
@@ -250,14 +272,14 @@ public class ContentMangaFragment extends Fragment {
             getMangaContent(currentChapter.getLink_chapter());
             MangaHistory mangaHistory = new MangaHistory(mangaDetailActivity.mangaDetail.getTitle_manga().trim(),mangaDetailActivity.mangaLink.trim(), mangaDetailActivity.mangaDetail.getRank_manga().trim(), currentChapter.getName_chapter().trim(), mangaDetailActivity.mangaDetail.rating_manga.trim(),mangaDetailActivity.mangaDetail.getPoster_manga(), 1, 0, mangaDetailActivity.mangaDetail.getList_chapter().size() - currentIndexChapter);
             updateHistory(mangaHistory);
-//            mangaDetailActivity.hideKProgressHUD();
+
         }catch (Exception e){
             requireActivity().onBackPressed();
         }
 
     }
     private void initRcvManga(){
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL, false);
+         linearLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL, false);
         fragmentContentBinding.rcvManga.setLayoutManager(linearLayoutManager);
         mangaContentAdapter = new MangaContentAdapter(imageList );
         fragmentContentBinding.rcvManga.setAdapter(mangaContentAdapter);
@@ -265,9 +287,7 @@ public class ContentMangaFragment extends Fragment {
 
 
     private void getMangaContent(String link) {
-//        MangaDetail.Chapter  chapter  =  mangaActivity.currentChapterList;
-//        String link = chapter.getLink_chapter();
-//        Log.d("abcd", link );
+
 
         ApiService.apiService.getContentChapter(link).enqueue(new Callback<MangaContent>() {
             @SuppressLint("NotifyDataSetChanged")
