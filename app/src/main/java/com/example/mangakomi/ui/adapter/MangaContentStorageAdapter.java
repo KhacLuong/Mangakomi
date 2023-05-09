@@ -43,6 +43,7 @@ public class MangaContentStorageAdapter extends RecyclerView.Adapter<MangaConten
                 Glide.with(holder.itemView.getContext())
                         .asBitmap()
                         .load(bitmap)
+                        .centerCrop()
                         .into(holder.itemContentChapterBinding.imgContent);
             }
         }catch (Exception ignored){

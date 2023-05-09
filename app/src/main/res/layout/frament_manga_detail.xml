@@ -47,13 +47,7 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/bg_manga_detail" />
 
-<!--                    <LinearLayout-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="@dimen/define_dimen_300"-->
-<!--                        android:background="@drawable/bg_home"-->
-<!--                        android:layout_alignParentBottom="true"-->
-<!--                        android:alpha="0.2"/>-->
-                <!--        info manga-->
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

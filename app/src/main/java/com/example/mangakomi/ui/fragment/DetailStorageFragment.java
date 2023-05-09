@@ -142,6 +142,7 @@ public class DetailStorageFragment extends Fragment {
         Glide.with(mangaDetailStorageActivity)
                 .load(new File(filePath))
                 .placeholder(R.drawable.img_no_image)
+                .centerCrop()
                 .into(fragmentDetailStorageBinding.imgManga);
         displayMangaListChapter();
 

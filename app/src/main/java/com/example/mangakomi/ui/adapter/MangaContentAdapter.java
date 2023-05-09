@@ -40,7 +40,7 @@ public class MangaContentAdapter extends RecyclerView.Adapter<MangaContentAdapte
             }else {
                 Picasso.get().load(chapterContent)
                         .placeholder(R.drawable.loading_gif)
-                        .error(R.drawable.loading_gif)
+                        .error(R.drawable.img_no_image)
                         .into(holder.itemContentChapterBinding.imgContent);
             }
         }catch (Exception ignored){

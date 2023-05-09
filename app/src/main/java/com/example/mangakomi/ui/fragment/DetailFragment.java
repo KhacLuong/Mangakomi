@@ -203,6 +203,7 @@ public class DetailFragment extends Fragment {
         Picasso.get().load(mangaDetail.getPoster_manga()).fit()
                 .placeholder(R.drawable.img_no_image)
                 .error(R.drawable.img_no_image)
+
                 .into(framentMangaDetailBinding.imgManga);
         displayMangaListChapter(mangaDetail.getList_chapter());
 
