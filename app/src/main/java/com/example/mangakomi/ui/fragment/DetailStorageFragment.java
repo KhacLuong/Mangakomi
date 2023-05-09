@@ -1,5 +1,6 @@
 package com.example.mangakomi.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
@@ -80,6 +81,24 @@ public class DetailStorageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 GlobalFunction.startActivity(getActivity(), MangaGenresActivity.class, IConstant.ACTION, IConstant.ACTION_SEARCH) ;
+            }
+        });
+        fragmentDetailStorageBinding.btnImgReadMore.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(View v) {
+                if (checkMaxLineContent) {
+
+                    fragmentDetailStorageBinding.tvContent.setMaxLines(2);
+                    fragmentDetailStorageBinding.tvBtnReadmore.setText("read more");
+                    fragmentDetailStorageBinding.btnImgReadMore.setImageResource(R.drawable.ic_baseline_arrow_drop_down_36);
+                    checkMaxLineContent = false;
+                } else {
+                    fragmentDetailStorageBinding.tvContent.setMaxLines(Integer.MAX_VALUE);
+                    fragmentDetailStorageBinding.tvBtnReadmore.setText("collapse");
+                    fragmentDetailStorageBinding.btnImgReadMore.setImageResource(R.drawable.ic_baseline_arrow_drop_up_34);
+                    checkMaxLineContent = true;
+                }
             }
         });
     }
