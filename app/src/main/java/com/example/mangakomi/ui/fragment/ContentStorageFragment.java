@@ -23,8 +23,11 @@ import com.example.mangakomi.R;
 import com.example.mangakomi.databinding.FragmentContentStorageBinding;
 
 import com.example.mangakomi.ui.activity.MangaDetailStorageActivity;
+import com.example.mangakomi.ui.activity.MangaGenresActivity;
 import com.example.mangakomi.ui.adapter.MangaContentAdapter;
 import com.example.mangakomi.ui.adapter.MangaContentStorageAdapter;
+import com.example.mangakomi.util.GlobalFunction;
+import com.example.mangakomi.util.IConstant;
 import com.example.mangakomi.util.event.ReloadListDataContentMangaEvent;
 import com.example.mangakomi.util.event.ReloadListDataContentMangaStorageEvent;
 
@@ -126,6 +129,19 @@ public class ContentStorageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mangaDetailStorageActivity.activityMangaDetailStorageBinding.viewpager2MangaDetail.setCurrentItem(0);
+            }
+        });
+
+        fragmentContentBinding.toolbar.btnAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(getActivity(), MangaDetailStorageActivity.class) ;
+            }
+        });
+        fragmentContentBinding.toolbar.btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(getActivity(), MangaGenresActivity.class, IConstant.ACTION, IConstant.ACTION_SEARCH) ;
             }
         });
     }

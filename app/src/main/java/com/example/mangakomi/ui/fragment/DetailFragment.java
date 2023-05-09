@@ -140,7 +140,7 @@ public class DetailFragment extends Fragment {
     }
 
     private void openDialogBack() {
-        MyDialog dialog = new MyDialog(getActivity(), 0, "Alert", "Error, download the story failed", Gravity.CENTER);
+        MyDialog dialog = new MyDialog(getActivity(), 0, "Alert", "Error, Explicit content 18+", Gravity.CENTER);
         dialog.setOnButtonClickListener(() -> requireActivity().onBackPressed(), () -> {
 
         });
@@ -275,52 +275,53 @@ public class DetailFragment extends Fragment {
         ApiService.apiService.getContentChapter(chapterLink).enqueue(new Callback<MangaContent>() {
             @Override
             public void onResponse(Call<MangaContent> call, Response<MangaContent> response) {
-                mangaContent = response.body();
-                if (mangaContent == null || mangaContent.getImage() == null || mangaContent.getImage().size() == 0)
-                    return;
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
 
+                try {
 
-                        if (getActivity() != null && ContextCompat.checkSelfPermission(mangaDetailActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                            savePoster();
-                        } else {
-                            askPermission2();
-                        }
+                    mangaContent = response.body();
+                    if (mangaContent == null || mangaContent.getImage() == null || mangaContent.getImage().size() == 0)
+                        return;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
 
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                saveManGaDownload(setMangaDownload(), mangaDetail.getList_chapter().get(index));
-                                MangaDownload mangaDownload = MangaDownloadDb.getInstance(getActivity().getApplicationContext()).mangaDownloadDao().getMangaByName(mangaDetail.getTitle_manga());
-                                if (mangaDownload != null) {
-                                    ChapterDownload chapterDownload = ChapterDownloadDb.getInstance(getActivity()).chapterDownloadDao().getChaptersByNameAndMangaId(nameChapter, mangaDownload.getId());
-                                    if (chapterDownload != null) {
+                            if (getActivity() != null && ContextCompat.checkSelfPermission(mangaDetailActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                savePoster();
+                            } else {
+                                askPermission2();
+                            }
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    saveManGaDownload(setMangaDownload(), mangaDetail.getList_chapter().get(index), index);
+                                    MangaDownload mangaDownload = MangaDownloadDb.getInstance(getActivity().getApplicationContext()).mangaDownloadDao().getMangaByName(mangaDetail.getTitle_manga());
+                                    if (mangaDownload != null) {
+                                        ChapterDownload chapterDownload = ChapterDownloadDb.getInstance(getActivity()).chapterDownloadDao().getChaptersByNameAndMangaId(nameChapter, mangaDownload.getId());
+                                        if (chapterDownload != null) {
 
 //                                        String folderPath = Environment.getExternalStorageDirectory() + "/Komi/" + mangaDetail.getTitle_manga().trim() + "/" + nameChapter.trim();
-                                        String folderPath = getActivity().getApplicationContext().getCacheDir().getPath() + "/image/" + mangaDetail.getTitle_manga().trim() + "/" + nameChapter.trim();
-//           test
-//            String folderPath = requireActivity().getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDetail.getTitle_manga().trim()+"/"+nameChapter.trim();
+                                            String folderPath = getActivity().getApplicationContext().getCacheDir().getPath() + "/image/" + mangaDetail.getTitle_manga().trim() + "/" + nameChapter.trim();
 
-                                        File myFolder = new File(folderPath);
-                                        if (!myFolder.exists()) {
-                                            for (String url : mangaContent.getImage()) {
-                                                getData(url, nameChapter);
+                                            File myFolder = new File(folderPath);
+                                            if (!myFolder.exists()) {
+                                                for (String url : mangaContent.getImage()) {
+                                                    getData(url, nameChapter);
+                                                }
                                             }
+
                                         }
-
                                     }
+
                                 }
-                            }
-                        }).start();
+                            }).start();
+                        }
+                    }).start();
 
-
-                    }
-                }).start();
-
-//            save data in to SQLite;
-
+                }catch (Exception e){
+                    MyDialog myDialog = new MyDialog(getActivity(), 0, "Error", "An error occurred while downloading", Gravity.CENTER);
+                    myDialog.show();
+                }
 
             }
 
@@ -395,7 +396,7 @@ public class DetailFragment extends Fragment {
         }
     }
 
-    private void saveManGaDownload(MangaDownload mangaDownload, MangaDetail.Chapter chapter) {
+    private void saveManGaDownload(MangaDownload mangaDownload, MangaDetail.Chapter chapter, int index) {
         MangaDownload manga;
         if (mangaDownload == null || mangaDownload.getTitle_manga() == null || mangaDownload.getTitle_manga().isEmpty()) {
             return;
@@ -429,6 +430,13 @@ public class DetailFragment extends Fragment {
 //            EventBus.getDefault().post(new ReloadListBookMark());
 //            EventBus.getDefault().post(new ReloadListDataHistory());
         }
+        mangaDetailActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                chapterAdapter.notifyItemChanged(index);
+
+            }
+        });
     }
 
     private MangaDownload setMangaDownload() {

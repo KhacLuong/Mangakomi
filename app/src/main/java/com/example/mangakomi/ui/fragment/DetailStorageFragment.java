@@ -23,7 +23,10 @@ import com.example.mangakomi.service.DbStorage.ChapterDownload.ChapterDownloadDb
 import com.example.mangakomi.service.DbStorage.MangaDownload.MangaDownloadDb;
 import com.example.mangakomi.ui.activity.MangaDetailActivity;
 import com.example.mangakomi.ui.activity.MangaDetailStorageActivity;
+import com.example.mangakomi.ui.activity.MangaGenresActivity;
 import com.example.mangakomi.ui.adapter.ChapterStorageAdapter;
+import com.example.mangakomi.util.GlobalFunction;
+import com.example.mangakomi.util.IConstant;
 import com.example.mangakomi.util.event.ReloadListDataContentMangaEvent;
 import com.example.mangakomi.util.event.ReloadListDataContentMangaStorageEvent;
 
@@ -62,8 +65,23 @@ public class DetailStorageFragment extends Fragment {
 //        } catch (Exception e) {
 //            getActivity().onBackPressed();
 //        }
-
+            initListener();
         return fragmentDetailStorageBinding.getRoot();
+    }
+
+    private void initListener() {
+        fragmentDetailStorageBinding.toolbar.btnAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(getActivity(), MangaDetailStorageActivity.class) ;
+            }
+        });
+        fragmentDetailStorageBinding.toolbar.btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(getActivity(), MangaGenresActivity.class, IConstant.ACTION, IConstant.ACTION_SEARCH) ;
+            }
+        });
     }
 
     private void getData() {

@@ -333,7 +333,7 @@ public class ContentMangaFragment extends Fragment {
         if(manga == null){
             MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().insertMangaHistory(mangaHistory);
             List<MangaHistory> mangaOfHistoryList = MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().getListMangaHistory();
-            if(mangaOfHistoryList.size()>10){
+            if(mangaOfHistoryList.size()>100){
                 MangaHistory maga1 = mangaOfHistoryList.get(0);
                 if(maga1.getStatusBookMark()==0){
                     MangaHistoryDb.getInstance(getActivity()).mangaHistoryDAO().deleteMangaHistory(maga1.getId());

@@ -51,6 +51,7 @@ public class MangaDetailStorageActivity extends AppCompatActivity {
         MangaViewPagerStorageAdapter mangaViewPagerAdapter = new MangaViewPagerStorageAdapter(this);
         activityMangaDetailStorageBinding.viewpager2MangaDetail.setAdapter(mangaViewPagerAdapter);
         getDataIntent();
+
     }
 
     private void getDataIntent() {

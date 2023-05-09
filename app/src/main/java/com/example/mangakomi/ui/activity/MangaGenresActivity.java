@@ -84,6 +84,13 @@ public class MangaGenresActivity extends AppCompatActivity {
     }
 
     private void eventListener() {
+        activityMangaGenresBinding.toolbar.btnAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(MangaGenresActivity.this, MangaStorageActivity.class);
+            }
+        });
+
         activityMangaGenresBinding.toolbar.edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
@@ -125,6 +132,7 @@ public class MangaGenresActivity extends AppCompatActivity {
                 searchManga();
             }
         });
+
     }
 
     private void searchManga() {

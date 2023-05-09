@@ -77,7 +77,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterL
             holder.itemChapterLatestDetailBinding.btnDownChapter.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    iOnClickChapterItemListener.onClickDownChapter(position, chapter.name_chapter);
+                    iOnClickChapterItemListener.onClickDownChapter(index, chapter.name_chapter);
                 }
             });
             MangaDownload mangaDownload = MangaDownloadDb.getInstance(holder.itemView.getContext()).mangaDownloadDao().getMangaByName(mangaDetail.getTitle_manga());

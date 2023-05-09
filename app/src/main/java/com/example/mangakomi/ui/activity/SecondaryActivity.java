@@ -47,6 +47,12 @@ public class SecondaryActivity extends AppCompatActivity {
                 GlobalFunction.startActivity(SecondaryActivity.this, MangaGenresActivity.class, IConstant.ACTION, IConstant.ACTION_SEARCH) ;
             }
         });
+        activitySecondaryBinding.toolbar.btnAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlobalFunction.startActivity(SecondaryActivity.this, MangaStorageActivity.class) ;
+            }
+        });
 
     }
 
