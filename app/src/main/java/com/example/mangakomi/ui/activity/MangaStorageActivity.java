@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -28,6 +29,12 @@ import com.example.mangakomi.ui.adapter.MangaStorageAdapter;
 import com.example.mangakomi.util.GlobalFunction;
 import com.example.mangakomi.util.IConstant;
 import com.example.mangakomi.util.callback.ItemTouchHelperListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -71,9 +78,37 @@ public class MangaStorageActivity extends AppCompatActivity implements ItemTouch
 
         initListener();
 
-//        List<ChapterDownload> chapterDownloads = ChapterDownloadDb.getInstance(getApplicationContext()).chapterDownloadDao().getAllChapter();
-//        List<MangaDownload> mangaDownloads = MangaDownloadDb.getInstance(getApplicationContext()).mangaDownloadDao().getAllManga();
-//        Toast.makeText(this, chapterDownloads.size()+"", Toast.LENGTH_SHORT).show();
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        loadAds();
+        super.onResume();
+    }
+
+    private void  loadAds(){
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+            }
+        });
+        AdView adView = new AdView(this);
+
+        adView.setAdSize(AdSize.BANNER);
+
+        adView.setAdUnitId(getResources().getString(R.string.AdUnitId_banner_footer));
+        adView = findViewById(R.id.adView);
+        @SuppressLint("VisibleForTests") AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
+        if (adView.isLoading()){
+            activityMangaStorageBinding.layoutAds.setVisibility(View.VISIBLE);
+        }else {
+            activityMangaStorageBinding.layoutAds.setVisibility(View.GONE);
+        }
 
     }
 

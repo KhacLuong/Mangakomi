@@ -30,6 +30,39 @@
             android:layout_marginBottom="-10dp"
              />
     </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/layout_ads"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/define_dimen_60"
+        android:background="@color/tran_parent"
+        android:visibility="gone"
+        >
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/AdUnitId_banner_footer">
+        </com.google.android.gms.ads.AdView>
+        <ImageButton
+            android:id="@+id/btn_close_ads"
+            android:layout_width="@dimen/define_dimen_30"
+            android:layout_height="@dimen/define_dimen_30"
+            android:layout_toEndOf="@+id/adView"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="-6dp"
+            android:layout_marginTop="-4dp"
+            android:src="@drawable/baseline_close_24"
+            />
+
+    </RelativeLayout>
+
 
 
 

@@ -35,4 +35,12 @@
     <string name="no_thanks">No, Thanks</string>
     <string name="yes">Yes</string>
     <string name="search">Search</string>
+
+
+
+    <!-- AdMob ad unit IDs -->
+    <string name="google_admob_ID">ca-app-pub-5372862349743986~5795911023</string>
+
+    <string name="AdUnitId_banner_footer">ca-app-pub-5372862349743986/3527990272</string>
+    <string name="AdUnitId_interstitial_full_screen">ca-app-pub-5372862349743986/6293754412</string>
 </resources>

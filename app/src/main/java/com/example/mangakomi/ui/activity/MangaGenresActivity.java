@@ -26,6 +26,12 @@ import com.example.mangakomi.model.MangaGenres;
 import com.example.mangakomi.model.MangaLatest;
 import com.example.mangakomi.util.GlobalFunction;
 import com.example.mangakomi.util.IConstant;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
@@ -75,6 +81,35 @@ public class MangaGenresActivity extends AppCompatActivity {
         getManga(1);
         eventListener();
 
+
+    }
+    @Override
+    protected void onResume() {
+        loadAds();
+        super.onResume();
+    }
+
+    private void  loadAds(){
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+            }
+        });
+        AdView adView = new AdView(this);
+
+        adView.setAdSize(AdSize.BANNER);
+
+        adView.setAdUnitId(getResources().getString(R.string.AdUnitId_banner_footer));
+        adView = findViewById(R.id.adView);
+        @SuppressLint("VisibleForTests") AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
+        if (adView.isLoading()){
+            activityMangaGenresBinding.layoutAds.setVisibility(View.VISIBLE);
+        }else {
+            activityMangaGenresBinding.layoutAds.setVisibility(View.GONE);
+        }
 
     }
 

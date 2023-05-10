@@ -30,6 +30,11 @@ import com.example.mangakomi.util.GlobalFunction;
 import com.example.mangakomi.util.IConstant;
 import com.example.mangakomi.util.event.ReloadListDataContentMangaEvent;
 import com.example.mangakomi.util.event.ReloadListDataContentMangaStorageEvent;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -42,6 +47,8 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class ContentStorageFragment extends Fragment {
@@ -51,6 +58,9 @@ public class ContentStorageFragment extends Fragment {
     private List<Bitmap> bitmapList;
     private MangaContentStorageAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
+    private InterstitialAd mInterstitialAd;
+    private Timer timer ;
+    private TimerTask timerTask;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -68,7 +78,6 @@ public class ContentStorageFragment extends Fragment {
 
 
         try {
-
             initUi();
             initRcvManga();
             getData();
@@ -78,6 +87,36 @@ public class ContentStorageFragment extends Fragment {
         }
 
         return fragmentContentBinding.getRoot();
+    }
+
+    private void loadAds() {
+
+        MobileAds.initialize(getActivity(), initializationStatus -> {
+        });
+
+
+        @SuppressLint("VisibleForTests") AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(getActivity(), getResources().getString(R.string.AdUnitId_interstitial_full_screen), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+
+                        mInterstitialAd = interstitialAd;
+                        if (mInterstitialAd != null) {
+                            mInterstitialAd.show(getActivity());
+                        } else {
+                        }
+
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        mInterstitialAd = null;
+                    }
+                });
+
+
     }
 
     private void initListener() {
@@ -150,6 +189,7 @@ public class ContentStorageFragment extends Fragment {
     private void getData() {
         bitmapList.clear();
 //        try {
+
 //            File cacheDir = requireActivity().getApplicationContext().getCacheDir();
 //            File imageFile = new File(cacheDir, "/image/"+mangaDetailStorageActivity.mangaDownload.getTitle_manga()+"/"+mangaDetailStorageActivity.currentChapter.getName_chapter());
 //            FileInputStream fileInputStream = new FileInputStream(imageFile);
@@ -171,7 +211,7 @@ public class ContentStorageFragment extends Fragment {
 //            e.printStackTrace();
 //        }
 
-
+        loadAds();
 //        String filePath = mangaDetailStorageActivity.getApplicationContext().getCacheDir().getPath() + "/image/" +mangaDetailStorageActivity.mangaDownload.getTitle_manga().trim();
         File cacheDir = getActivity().getApplicationContext().getCacheDir();
         String filePath = cacheDir.getPath() + "/image/" + mangaDetailStorageActivity.mangaDownload.getTitle_manga().trim() + "/" + mangaDetailStorageActivity.currentChapter.getName_chapter().trim();
@@ -224,5 +264,10 @@ public class ContentStorageFragment extends Fragment {
         }
         mangaDetailStorageActivity.hideKProgressHUD();
     }
+
+
+
+
+
 
 }

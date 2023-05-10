@@ -50,6 +50,15 @@ import com.example.mangakomi.util.event.ReloadListDataHistory;
 import com.example.mangakomi.model.MangaContent;
 import com.example.mangakomi.model.MangaDetail;
 import com.example.mangakomi.model.MangaHistory;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.squareup.picasso.Picasso;
 
 
@@ -87,6 +96,8 @@ public class DetailFragment extends Fragment {
     private int index = 0;
 
 
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,7 +108,9 @@ public class DetailFragment extends Fragment {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+
         mangaDetailActivity.kProgressHUD.show();
+
         try {
             getMangaDetail();
             eventListener();
@@ -108,6 +121,40 @@ public class DetailFragment extends Fragment {
 
         return framentMangaDetailBinding.getRoot();
     }
+
+
+//    private void  loadAds(){
+//
+//        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
+//            @Override
+//            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+//            }
+//        });
+//
+//
+//        @SuppressLint("VisibleForTests") AdRequest adRequest = new AdRequest.Builder().build();
+//
+//        InterstitialAd.load(getActivity(),getResources().getString(R.string.AdUnitId_interstitial_full_screen), adRequest,
+//                new InterstitialAdLoadCallback() {
+//                    @Override
+//                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+//
+//                        mInterstitialAd = interstitialAd;
+//                        if (mInterstitialAd != null) {
+//                            mInterstitialAd.show(getActivity());
+//                        } else {
+//                        }
+//
+//                    }
+//
+//                    @Override
+//                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+//                        mInterstitialAd = null;
+//                    }
+//                });
+//
+//
+//    }
 
 
     private void getMangaDetail() {

@@ -1,8 +1,10 @@
 package com.example.mangakomi.ui.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 
@@ -12,6 +14,12 @@ import com.example.mangakomi.databinding.ActivityMainBinding;
 import com.example.mangakomi.databinding.ActivitySecondaryBinding;
 import com.example.mangakomi.util.GlobalFunction;
 import com.example.mangakomi.util.IConstant;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import io.github.rupinderjeet.kprogresshud.KProgressHUD;
@@ -26,9 +34,6 @@ public class SecondaryActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.yellow2));
         activitySecondaryBinding = ActivitySecondaryBinding.inflate(getLayoutInflater());
         setContentView(activitySecondaryBinding.getRoot());
-
-
-
         activitySecondaryBinding.viewpager2.setUserInputEnabled(false);
         SecondaryViewPagerAdapter secondaryViewPagerAdapter = new SecondaryViewPagerAdapter(this);
         activitySecondaryBinding.viewpager2.setAdapter(secondaryViewPagerAdapter);
@@ -36,6 +41,36 @@ public class SecondaryActivity extends AppCompatActivity {
         onPageChangeViewPager();
         getDataIntent();
         eventListener();
+
+
+    }
+    @Override
+    protected void onResume() {
+        loadAds();
+        super.onResume();
+    }
+
+    private void  loadAds(){
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+            }
+        });
+        AdView adView = new AdView(this);
+
+        adView.setAdSize(AdSize.BANNER);
+
+        adView.setAdUnitId(getResources().getString(R.string.AdUnitId_banner_footer));
+        adView = findViewById(R.id.adView);
+        @SuppressLint("VisibleForTests") AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
+        if (adView.isLoading()){
+            activitySecondaryBinding.layoutAds.setVisibility(View.VISIBLE);
+        }else {
+            activitySecondaryBinding.layoutAds.setVisibility(View.GONE);
+        }
 
     }
 

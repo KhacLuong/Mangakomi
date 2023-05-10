@@ -81,4 +81,7 @@ dependencies {
 
 //    Zoom image
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+
+// admob
+    implementation 'com.google.android.gms:play-services-ads:20.3.0'
 }

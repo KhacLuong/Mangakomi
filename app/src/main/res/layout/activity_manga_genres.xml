@@ -79,11 +79,30 @@
     </LinearLayout>
 
 
-
-    <include
-        android:id="@+id/bottom_nav"
-        layout="@layout/layout_bottom_none"
+    <RelativeLayout
+        android:id="@+id/layout_ads"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/define_dimen_20"
-        android:layout_alignParentBottom="true"/>
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/tran_parent"
+        android:visibility="gone"
+        >
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            ads:adSize="LARGE_BANNER
+"
+            ads:adUnitId="@string/AdUnitId_banner_footer">
+        </com.google.android.gms.ads.AdView>
+    </RelativeLayout>
+<!--    <include-->
+<!--        android:id="@+id/bottom_nav"-->
+<!--        layout="@layout/layout_bottom_none"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="@dimen/define_dimen_20"-->
+<!--        android:layout_alignParentBottom="true"/>-->
 </RelativeLayout>
