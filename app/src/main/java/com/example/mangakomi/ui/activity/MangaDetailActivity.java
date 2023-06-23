@@ -170,7 +170,7 @@ public class MangaDetailActivity extends AppCompatActivity {
         super.onDestroy();
         hideKProgressHUD();
         mInterstitialAd = null;
-        
+
     }
 
 }
